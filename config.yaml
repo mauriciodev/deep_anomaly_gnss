@@ -28,7 +28,7 @@ searchSpace:
     _type: uniform
     _value: [0.1, 0.3]
   top_k:
-    _type: uniform
+    _type: randint
     _value: [3, 10]
   num_kernels:
     _type: choice
@@ -38,13 +38,13 @@ searchSpace:
     _value: [96, 99]
 trialCommand: python timesnet.py
 trialCodeDirectory: .
-trialGpuNumber: 0
+#trialGpuNumber: 1
 trialConcurrency: 1
-maxTrialNumber: 10
+maxTrialNumber: 1
 tuner:
   name: TPE
   classArgs:
     optimize_mode: maximize
 trainingService:
   platform: local
-  useActiveGpu: False
+  #useActiveGpu: False
