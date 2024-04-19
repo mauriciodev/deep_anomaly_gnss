@@ -1,62 +1,79 @@
 from matplotlib import pyplot as plt
-import numpy as np 
+import numpy as np
 import pandas as pd
-import torch
-import nni
-import sklearn
-
-gnss_data_path = 'data/BRAZ_train.csv.csv'
-#data = np.genfromtxt(gnss_data_path, delimiter=',', skip_header=1, dtype=None)
-df = pd.read_csv(gnss_data_path)
-data = df.to_numpy()
-print(data.shape)
-X_train = data[:, [1,2]]
-print(X_train.shape)
-X_test = X_train
-
-truth = data[:, [4]]
-
-
-
-
-
-params = {'seq_len': 100,
-          'epochs':20,
-          'd_model': 128
-          
-    }
-params.update( nni.get_next_parameter() )
-print(params)
-# time series anomaly detection methods
 from deepod.models.time_series import TimesNet as Model
-model = Model(**params) 
+import sklearn
+import nni
+import pandas as pd
+import numpy as np
+import logging
 
-#from deepod.models.time_series import AnomalyTransformer as Model
-#device = 'cuda' if torch.cuda.is_available() else 'cpu'
-"""model = Model(seq_len=10, stride=1, epochs=20,
-              batch_size=32, k=20, lr=1e-4,
-              device=device, random_state=42)"""
+def get_data(gnss_data_path: str, gnss_label_path:str) -> (pd.DataFrame, pd.DataFrame):
+    return pd.read_csv(gnss_data_path), pd.read_csv(gnss_label_path)
 
+def train(params: dict, gnss_data_path: str, gnss_label_path:str, percentile:int) -> float:
+    gnss_data, gnss_label = get_data(gnss_data_path, gnss_label_path)
+    
+    # Instantiationg and fitting model
+    model = Model(**params)
+    model.fit(gnss_data.iloc[:, [1,2]])
+    
+    # Getting scores
+    scores = model.decision_function(gnss_data.iloc[:, [1,2]])
 
+    # Calculating predictions based on a percentile
+    threshold = np.percentile(scores, percentile)
+    pred = (scores > threshold).astype('int').ravel()
 
-#parameters = model.fit_auto_hyper(X_train)
-#scores = model.decision_function(X_train)
-model.fit(X_train)
-pred = model.predict(X_train)
-metrics = sklearn.metrics.precision_recall_fscore_support(pred.flatten(), truth.flatten())
-accuracy = sklearn.metrics.accuracy_score(pred.flatten(), truth.flatten())
-f1 = sklearn.metrics.f1_score(pred.flatten(), truth.flatten())
-nni.report_final_result(f1)
-print(f"Accuracy {accuracy}")
-print(f"F1 score {f1}")
+    # Calculationg metrics
+    truth = gnss_label.label.to_numpy().flatten()
+    precision, recall, f1_score, support = sklearn.metrics.precision_recall_fscore_support(pred, truth)
+    accuracy = sklearn.metrics.accuracy_score(pred, truth)
+    f1 = sklearn.metrics.f1_score(pred, truth)
+    
+    print(f"Accuracy {accuracy}")
+    print(f"Precision {precision}")
+    print(f"Recall {recall}")
+    print(f"F1 score {f1}")
 
-#df.plot(x='gps_week', y=['dn(m)', 'de(m)'])
-#plt.bar(df['gps_week'], scores/max(scores)*X_train.max(), label = 'scores')
-#plt.plot(df['gps_week'], pred[0], label = 'guess', linestyle='', marker='o')
+    return f1
 
-
-#pred_df = df['dn(m)'].to_numpy().copy()
-#pred_df[pred==0] = np.nan
-#plt.vlines(df['gps_week'][pred==1].to_numpy(), ymin=X_train.min(), ymax=X_train.max())
-
-#plt.legend()
+if __name__ == '__main__':
+    
+    gnss_data_path = 'dataset/NEU/train.csv'
+    gnss_label_path = 'dataset/NEU/test_label.csv'
+    
+    # Hyperparameters
+    params = {
+        'seq_len':100,
+        'stride':1,
+        'lr':1e-4,
+        'epochs':3,
+        'batch_size':32,
+        'epoch_steps':20,
+        'prt_steps':1,
+        'pred_len':0,
+        'e_layers':2,
+        'd_model':64,
+        'd_ff':64,
+        'dropout':0.1,
+        'top_k':5,
+        'num_kernels':6,
+        'verbose':2,
+        'random_state':42,
+    }
+    params.update(nni.get_next_parameter())
+    
+    # Logging
+    logging.info(params)
+    
+    # Training
+    f1 = train(
+        params=params, 
+        gnss_data_path=gnss_data_path, 
+        gnss_label_path=gnss_label_path, 
+        percentile = 98,
+    )
+    
+    # Reporting f1 to nni so it can be tracked
+    nni.report_final_result(f1)
