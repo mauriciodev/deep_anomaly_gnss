@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 import logging
 
-def get_data(gnss_data_path: str, gnss_label_path:str) -> (pd.DataFrame, pd.DataFrame):
+def get_data(gnss_data_path: str, gnss_label_path:str) -> tuple[pd.DataFrame, pd.DataFrame]:
     return pd.read_csv(gnss_data_path), pd.read_csv(gnss_label_path)
 
 def train(params: dict, gnss_data_path: str, gnss_label_path:str) -> float:
@@ -42,8 +42,8 @@ def train(params: dict, gnss_data_path: str, gnss_label_path:str) -> float:
 
 if __name__ == '__main__':
     
-    gnss_data_path = 'dataset/NEU/train.csv'
-    gnss_label_path = 'dataset/NEU/test_label.csv'
+    gnss_data_path = 'Anomaly Detection/deep_anomaly_gnss/dataset/NEU/train.csv'
+    gnss_label_path = 'Anomaly Detection/deep_anomaly_gnss/dataset/NEU/test_label.csv'
     
     # Hyperparameters
     params = {
@@ -64,6 +64,7 @@ if __name__ == '__main__':
         'verbose':2,
         'random_state':42,
         'percentile':96,
+        #'device':'cpu',
     }
     params.update(nni.get_next_parameter())
     

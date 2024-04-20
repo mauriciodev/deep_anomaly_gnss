@@ -28,12 +28,15 @@ params = {
 # Configure experiment
 experiment = Experiment('local')
 experiment.config.experiment_name = 'TimesNet Hyper Tune'
+experiment.config.search_space = params
 experiment.config.trial_command = 'python timesnet.py'
 experiment.config.trial_code_directory = Path(__file__).parent
-experiment.config.search_space = params
-experiment.config.tuner.name = 'TPE'
-experiment.config.max_trial_number = 10
+#experiment.config.trial_gpu_number = 0
 experiment.config.trial_concurrency = 1
+experiment.config.max_trial_number = 10
+experiment.config.tuner.name = 'TPE'
+experiment.config.tuner.class_args['optimize_mode'] = 'maximize'
+#experiment.config.training_service.use_active_gpu = False
 
 # Run it!
 experiment.run(port=8080, wait_completion=False)
