@@ -18,7 +18,7 @@ params = {
     'd_model':{"_type": "choice", "_value": [64, 128, 256]},
     'd_ff':{"_type": "choice", "_value": [64, 128, 256]},
     'dropout':{"_type": "uniform", "_value": [0.1, 0.3]},
-    'top_k':{"_type": "choice", "_value": [3, 5, 10]},
+    'top_k':{"_type": "randint", "_value": [3, 11]},
     'num_kernels':{"_type": "choice", "_value": [3, 6, 12]},
     'percentile':{"_type": "uniform", "_value": [96, 99]},
 }
