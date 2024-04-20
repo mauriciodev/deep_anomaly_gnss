@@ -64,7 +64,7 @@ if __name__ == '__main__':
         'verbose':2,
         'random_state':42,
         'percentile':96,
-        #'device':'cpu',
+        #'device':'mps',
     }
     params.update(nni.get_next_parameter())
     
