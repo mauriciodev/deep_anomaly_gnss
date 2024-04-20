@@ -42,8 +42,8 @@ def train(params: dict, gnss_data_path: str, gnss_label_path:str) -> float:
 
 if __name__ == '__main__':
     
-    gnss_data_path = 'Anomaly Detection/deep_anomaly_gnss/dataset/NEU/train.csv'
-    gnss_label_path = 'Anomaly Detection/deep_anomaly_gnss/dataset/NEU/test_label.csv'
+    gnss_data_path = 'dataset/NEU/train.csv'
+    gnss_label_path = 'dataset/NEU/test_label.csv'
     
     # Hyperparameters
     params = {
