@@ -47,4 +47,4 @@ tuner:
     optimize_mode: maximize
 trainingService:
   platform: local
-  #useActiveGpu: False
+  useActiveGpu: True
