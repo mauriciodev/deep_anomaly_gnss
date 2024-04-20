@@ -5,9 +5,7 @@ Check the online tutorial for details:
 https://nni.readthedocs.io/en/stable/tutorials/hpo_quickstart_pytorch/main.html
 """
 
-from pathlib import Path
 import signal
-
 from nni.experiment import Experiment
 
 params = {
@@ -30,7 +28,7 @@ experiment = Experiment('local')
 experiment.config.experiment_name = 'TimesNet Hyper Tune'
 experiment.config.search_space = params
 experiment.config.trial_command = 'python timesnet.py'
-experiment.config.trial_code_directory = Path(__file__).parent
+experiment.config.trial_code_directory = '.'
 #experiment.config.trial_gpu_number = 0
 experiment.config.trial_concurrency = 1
 experiment.config.max_trial_number = 10
