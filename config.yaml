@@ -38,7 +38,7 @@ searchSpace:
     _value: [96, 99]
 trialCommand: python timesnet.py
 trialCodeDirectory: .
-#trialGpuNumber: 1
+#trialGpuNumber: 0
 trialConcurrency: 1
 maxTrialNumber: 1
 tuner:
