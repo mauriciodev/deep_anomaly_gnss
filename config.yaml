@@ -28,8 +28,8 @@ searchSpace:
     _type: uniform
     _value: [0.1, 0.3]
   top_k:
-    _type: choice
-    _value: [3, 5, 10]
+    _type: randint
+    _value: [3, 11]
   num_kernels:
     _type: choice
     _value: [3, 6, 12]
