@@ -47,24 +47,26 @@ if __name__ == '__main__':
     
     # Hyperparameters
     params = {
-        'seq_len':10,
+        'seq_len':20,
         'stride':1,
         'lr':1e-4,
         'epochs':30,
         'batch_size':64,
-        'epoch_steps':20,
+        'epoch_steps':40,
         'prt_steps':1,
         'pred_len':0,
         'e_layers':2,
-        'd_model':64,
+        'd_model':256,
         'd_ff':64,
-        'dropout':0.1,
-        'top_k':5,
+        'dropout':0.15,
+        'top_k':7,
         'num_kernels':6,
         'verbose':2,
         'random_state':42,
-        'percentile':98,
+        'percentile':99,
         'device':'mps',
+        'patience':3,
+        'delta':5e-6,
     }
     params.update(nni.get_next_parameter())
     

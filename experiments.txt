@@ -48,7 +48,7 @@ best = {
     "percentile": 98.88698512755666
 }
 
-2024-04-21 01:22:19 - rwfe0mtj (f1 = 0.50)
+2024-04-21 01:22:19 - rwfe0mtj
 searchSpace:
   seq_len:
     _type: choice
@@ -101,7 +101,7 @@ best = {
     "percentile": 98.99558956158116
 }
 
-[2024-04-21 21:04:24] - ai4lkzcm
+[2024-04-21 21:57:35] - ui0pft2v
 searchSpace:
   seq_len:
     _type: choice
@@ -140,4 +140,16 @@ searchSpace:
     _type: uniform
     _value: [98.5, 99.5]
 
-best = 
+best = {
+    "seq_len": 20,
+    "lr": 0.000152933957159317,
+    "batch_size": 64,
+    "epoch_steps": 40,
+    "e_layers": 2,
+    "d_model": 256,
+    "d_ff": 64,
+    "dropout": 0.1580321368324562,
+    "top_k": 7,
+    "num_kernels": 6,
+    "percentile": 99.31306129399293
+}

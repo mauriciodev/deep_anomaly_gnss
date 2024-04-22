@@ -10,7 +10,7 @@ from deepod.core.base_model import BaseDeepAD
 import os
 
 class EarlyStop:
-    def __init__(self, patience=3, verbose=True, delta=5e-6, path='checkpoints'):
+    def __init__(self, patience, delta, path='checkpoints', verbose=True):
         self.patience = patience
         self.verbose = verbose
         self.counter = 0
@@ -97,13 +97,19 @@ class TimesNet(BaseDeepAD):
         
         random_state (int): 
             Seed for random number generation (default 42).
+
+        patience (int)
+            Number of epochs under convergence to early stop (default 3).
+
+        delta (float)
+            Convergence value for the early stopping (default 5e-6)
         
     """
     
     def __init__(self, seq_len=100, stride=1, lr=0.0001, epochs=10, batch_size=32,
                  epoch_steps=20, prt_steps=1, device='cuda',
                  pred_len=0, e_layers=2, d_model=64, d_ff=64, dropout=0.1, top_k=5, num_kernels=6,
-                 verbose=2, random_state=42):
+                 verbose=2, random_state=42, patience=3, delta=5e-6):
         """
         Initializes TimesNet with the provided parameters.
         """
@@ -121,6 +127,9 @@ class TimesNet(BaseDeepAD):
         self.dropout = dropout
         self.top_k = top_k
         self.num_kernels = num_kernels
+
+        self.patience = patience
+        self.delta = delta
 
     def fit(self, X, y=None):
         """
@@ -164,7 +173,7 @@ class TimesNet(BaseDeepAD):
         self.optimizer = torch.optim.AdamW(self.net.parameters(), lr=self.lr, weight_decay=1e-5)
         self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=5, gamma=0.5)
 
-        early_stop = EarlyStop()
+        early_stop = EarlyStop(patience=self.patience, delta=self.delta)
 
         self.net.train()
         for e in range(self.epochs):
