@@ -48,7 +48,7 @@ best = {
     "percentile": 98.88698512755666
 }
 
-2024-04-21 01:22:19 - rwfe0mtj
+2024-04-21 01:22:19 - rwfe0mtj (f1 = 0.50)
 searchSpace:
   seq_len:
     _type: choice
@@ -89,19 +89,19 @@ searchSpace:
 
 best = {
     "seq_len": 20,
-    "lr": 0.00014746989170076835,
+    "lr": 0.00013355336502302563,
     "batch_size": 64,
     "epoch_steps": 40,
     "e_layers": 3,
     "d_model": 256,
     "d_ff": 64,
-    "dropout": 0.10087496753042974,
+    "dropout": 0.11291230119704151,
     "top_k": 6,
     "num_kernels": 12,
-    "percentile": 98.99558956158116
+    "percentile": 98.98904398291796
 }
 
-[2024-04-21 21:57:35] - ui0pft2v
+[2024-04-21 21:57:35] - ui0pft2v (f1 = 0.50)
 searchSpace:
   seq_len:
     _type: choice
@@ -152,4 +152,65 @@ best = {
     "top_k": 7,
     "num_kernels": 6,
     "percentile": 99.31306129399293
+}
+
+[2024-04-22 14:12:15] i6tsngw7 (f1 = 0.57)
+searchSpace:
+  seq_len:
+    _type: choice
+    _value: [20]
+  lr:
+    _type: loguniform
+    _value: [1e-4, 1e-2]
+  #epochs:
+  #  _type: choice
+  #  _value: [5, 10, 15]
+  batch_size:
+    _type: choice
+    _value: [64]
+  epoch_steps:
+    _type: choice
+    _value: [40]
+  e_layers:
+    _type: choice
+    _value: [2, 3]
+  d_model:
+    _type: choice
+    _value: [256]
+  d_ff:
+    _type: choice
+    _value: [64]
+  dropout:
+    _type: uniform
+    _value: [0.1, 0.2]
+  top_k:
+    _type: choice
+    _value: [6, 7, 8]
+  num_kernels:
+    _type: choice
+    _value: [6]
+  percentile:
+    _type: uniform
+    _value: [98.5, 99.5]
+  patience:
+    _type: choice
+    _value: [3, 5, 7]
+  delta:
+    _type: uniform
+    _value: [1e-6, 5e-6]
+
+best = {
+    "seq_len": 20,
+    "lr": 0.0001298490282061323,
+    "batch_size": 64,
+    "epoch_steps": 40,
+    "e_layers": 2,
+    "d_model": 256,
+    "d_ff": 64,
+    "dropout": 0.1555962408515998,
+    "top_k": 7,
+    "num_kernels": 6,
+    "percentile": 99.49872516813187,
+    "patience": 3,
+    "delta": 0.0000021973736433685103
 }

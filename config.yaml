@@ -46,7 +46,7 @@ trialCommand: python gnss_ad_timesnet.py
 trialCodeDirectory: .
 #trialGpuNumber: 0
 trialConcurrency: 1
-maxTrialNumber: 2
+maxTrialNumber: 50
 tuner:
   name: TPE
   classArgs:

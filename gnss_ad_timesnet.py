@@ -59,7 +59,7 @@ if __name__ == '__main__':
         'd_model':256,
         'd_ff':64,
         'dropout':0.15,
-        'top_k':7,
+        'top_k':6,
         'num_kernels':6,
         'verbose':2,
         'random_state':42,
