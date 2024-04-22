@@ -70,7 +70,7 @@ class GNSSPreprocessor():
             plot_filepath = os.path.join(station_folder, plot_filename)
             self.save_plot(neu_df_train, neu_df_test_label, plot_filepath)
             
-    def save_plot(self, neu_df_train, neu_df_test_label, plot_filepath):
+    def save_plot(self, neu_df_train:pd.DataFrame, neu_df_test_label:pd.DataFrame, plot_filepath:str) -> None:
         plt.clf()
         #plotting data
         plt.plot(neu_df_train.gps_week, neu_df_train['dn(m)'], label = 'Series DN')
@@ -84,7 +84,7 @@ class GNSSPreprocessor():
         plt.legend()
         plt.savefig(plot_filepath, format='png')
             
-    def read_NEU(self, filepath:str) -> (pd.DataFrame, pd.DataFrame):
+    def read_NEU(self, filepath:str) -> tuple[pd.DataFrame, pd.DataFrame]:
         with open(filepath,'r', encoding='ISO-8859-15') as a:
             s = a.read()
             # Reading only the data that is between the  -------- lines 
@@ -109,7 +109,7 @@ class GNSSPreprocessor():
         gps_t0 = pd.to_datetime('1980-01-06T00:00:00')
         return (np.ceil((time_series-gps_t0).dt.days/7)).astype(int)
     
-    def preprocess_NEU(self, neu_df:pd.DataFrame, dsc_df:pd.DataFrame) -> (pd.DataFrame, pd.DataFrame):
+    def preprocess_NEU(self, neu_df:pd.DataFrame, dsc_df:pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
         # Adding a label column
         neu_df['label'] = 0
         
@@ -145,4 +145,3 @@ if __name__ == '__main__':
         '''
         preprocessor = GNSSPreprocessor(stations=stations, destination=destination)
         preprocessor.download_sirgas()
-
