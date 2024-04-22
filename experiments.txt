@@ -48,7 +48,7 @@ best = {
     "percentile": 98.88698512755666
 }
 
-2024-04-21 01:22:19 - rwfe0mtj
+2024-04-21 01:22:19 - rwfe0mtj (f1 = 0.50)
 searchSpace:
   seq_len:
     _type: choice
