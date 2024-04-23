@@ -29,13 +29,13 @@ searchSpace:
     _value: [0.1, 0.2]
   top_k:
     _type: choice
-    _value: [6, 7, 8]
+    _value: [6, 7]
   num_kernels:
     _type: choice
     _value: [6]
   percentile:
     _type: uniform
-    _value: [98.5, 99.5]
+    _value: [99, 99.5]
   patience:
     _type: choice
     _value: [3, 5, 7]

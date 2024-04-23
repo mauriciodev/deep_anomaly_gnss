@@ -18,9 +18,9 @@ params = {
     'd_model':{"_type": "choice", "_value": [256]},
     'd_ff':{"_type": "choice", "_value": [64]},
     'dropout':{"_type": "uniform", "_value": [0.1, 0.2]},
-    'top_k':{"_type": "choice", "_value": [6, 7, 8]},
+    'top_k':{"_type": "choice", "_value": [6, 7]},
     'num_kernels':{"_type": "choice", "_value": [6]},
-    'percentile':{"_type": "uniform", "_value": [98.5, 99.5]},
+    'percentile':{"_type": "uniform", "_value": [99, 99.5]},
     'patience':{"_type": "choice", "_value": [3, 5, 7]},
     'delta':{"_type": "uniform", "_value": [1e-6, 5e-6]},
 }

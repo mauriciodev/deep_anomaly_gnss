@@ -59,14 +59,14 @@ if __name__ == '__main__':
         'd_model':256,
         'd_ff':64,
         'dropout':0.15,
-        'top_k':6,
+        'top_k':7,
         'num_kernels':6,
         'verbose':2,
         'random_state':42,
-        'percentile':99,
+        'percentile':99.5,
         'device':'mps',
         'patience':3,
-        'delta':5e-6,
+        'delta':2e-6,
     }
     params.update(nni.get_next_parameter())
     
