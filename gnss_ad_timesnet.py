@@ -49,7 +49,7 @@ if __name__ == '__main__':
     params = {
         'seq_len':20,
         'stride':1,
-        'lr':1e-4,
+        'lr':1.3e-4,
         'epochs':30,
         'batch_size':64,
         'epoch_steps':40,
