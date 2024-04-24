@@ -162,7 +162,7 @@ searchSpace:
     _value: [20]
   lr:
     _type: loguniform
-    _value: [1e-4, 1e-2]
+    _value: [1e-4, 3e-4]
   #epochs:
   #  _type: choice
   #  _value: [5, 10, 15]
@@ -174,7 +174,7 @@ searchSpace:
     _value: [40]
   e_layers:
     _type: choice
-    _value: [2, 3]
+    _value: [3]
   d_model:
     _type: choice
     _value: [256]
@@ -183,45 +183,45 @@ searchSpace:
     _value: [64]
   dropout:
     _type: uniform
-    _value: [0.1, 0.2]
+    _value: [0.10, 0.16]
   top_k:
     _type: choice
-    _value: [6, 7, 8]
+    _value: [6]
   num_kernels:
     _type: choice
     _value: [6]
   percentile:
     _type: uniform
-    _value: [98.5, 99.5]
+    _value: [99, 99.5]
   patience:
     _type: choice
-    _value: [3, 5, 7]
+    _value: [5, 7]
   delta:
     _type: uniform
     _value: [1e-6, 5e-6]
 
 best = {
     "seq_len": 20,
-    "lr": 0.0001298490282061323,
+    "lr": 1.23e-04,
     "batch_size": 64,
     "epoch_steps": 40,
     "e_layers": 2,
     "d_model": 256,
     "d_ff": 64,
-    "dropout": 0.1555962408515998,
+    "dropout": 0.13,
     "top_k": 7,
     "num_kernels": 6,
-    "percentile": 99.49872516813187,
-    "patience": 3,
+    "percentile": 99.47,
+    "patience": 5,
     "delta": 0.0000021973736433685103
 }
 
-CHEC Experiments-----------------------
-[2024-04-23 12:52:53] 3fq1wki5 (f1 = 40%)
+EPEC Experiments-----------------------
+[2024-04-23 21:11:20] 31giwhmb (f1 = 40%)
 searchSpace:
   seq_len:
     _type: choice
-    _value: [20, 30]
+    _value: [20]
   lr:
     _type: loguniform
     _value: [1e-4, 3e-4]
@@ -236,28 +236,28 @@ searchSpace:
     _value: [40]
   e_layers:
     _type: choice
-    _value: [2, 3]
+    _value: [3]
   d_model:
     _type: choice
-    _value: [256, 512]
+    _value: [256]
   d_ff:
     _type: choice
-    _value: [64, 128]
+    _value: [64]
   dropout:
     _type: uniform
-    _value: [0.1, 0.2]
+    _value: [0.10, 0.16]
   top_k:
     _type: choice
-    _value: [6, 7]
+    _value: [6]
   num_kernels:
     _type: choice
     _value: [6]
   percentile:
     _type: uniform
-    _value: [96, 99.5]
+    _value: [99, 99.5]
   patience:
     _type: choice
-    _value: [3, 5, 7]
+    _value: [5, 7]
   delta:
     _type: uniform
     _value: [1e-6, 5e-6]
@@ -265,18 +265,18 @@ searchSpace:
 10 models with same results. This is the mean value of the parameters
 best = {
     "seq_len": 20,
-    "lr": 0.00012264938413588438,
+    "lr": 1.50e-04,
     "batch_size": 64,
     "epoch_steps": 40,
     "e_layers": 3,
     "d_model": 256,
     "d_ff": 64,
-    "dropout": 0.13247102571813743,
+    "dropout": 0.14,
     "top_k": 6,
     "num_kernels": 6,
-    "percentile": 99.4673964643188,
-    "patience": 5,
-    "delta": 3.3923307988954763e-06
+    "percentile": 99.47,
+    "patience": 6,
+    "delta": 3.40e-06
 }
 
 
