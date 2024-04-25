@@ -387,6 +387,7 @@ searchSpace:
     _type: uniform
     _value: [1e-6, 5e-6]
 
+Approximation from the original values to reduce decimals
 best = {
     "seq_len": 20,
     "lr": 2.8e-4,
