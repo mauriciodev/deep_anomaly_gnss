@@ -4,8 +4,8 @@ searchSpace:
     _type: choice
     _value: [20]
   lr:
-    _type: loguniform
-    _value: [1e-4, 1e-2]
+    _type: choice
+    _value: [2.8e-4]
   #epochs:
   #  _type: choice
   #  _value: [5, 10, 15]
@@ -17,36 +17,36 @@ searchSpace:
     _value: [40]
   e_layers:
     _type: choice
-    _value: [2, 3]
+    _value: [3]
   d_model:
     _type: choice
-    _value: [256]
+    _value: [512]
   d_ff:
     _type: choice
     _value: [64]
   dropout:
     _type: uniform
-    _value: [0.1, 0.2]
+    _value: [0.25]
   top_k:
     _type: choice
-    _value: [6, 7]
+    _value: [6]
   num_kernels:
     _type: choice
-    _value: [6]
+    _value: [3]
   percentile:
     _type: uniform
-    _value: [99, 99.5]
+    _value: [96, 99.9]
   patience:
     _type: choice
-    _value: [3, 5, 7]
+    _value: [5, 7]
   delta:
-    _type: uniform
-    _value: [1e-6, 5e-6]
-trialCommand: python gnss_ad_timesnet.py
+    _type: choice
+    _value: [2.0e-6]
+trialCommand: python nni_experiment/gnss_ad_timesnet.py
 trialCodeDirectory: .
 #trialGpuNumber: 0
 trialConcurrency: 1
-maxTrialNumber: 50
+maxTrialNumber: 1
 tuner:
   name: TPE
   classArgs:

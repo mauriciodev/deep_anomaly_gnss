@@ -10,16 +10,15 @@ from deepod.core.base_model import BaseDeepAD
 import os
 
 class EarlyStop:
-    def __init__(self, patience, delta, path='checkpoints', verbose=True):
+    def __init__(self, patience, delta, verbose=True):
         self.patience = patience
         self.verbose = verbose
         self.counter = 0
         self.score = np.Inf
         self.delta = delta
-        self.path = path
         self.early_stop = False
 
-    def __call__(self, train_loss, model):
+    def __call__(self, train_loss):
         if train_loss < self.score and abs(train_loss - self.score) <= self.delta:
             if self.verbose:
                 print(f'Model is converging: ({self.score:.9f} --> {train_loss:.9f}).')
@@ -31,12 +30,6 @@ class EarlyStop:
             self.counter = 0
 
         self.score = train_loss
-        
-        self.save_checkpoint(model)
-
-    def save_checkpoint(self, model):
-        print('Saving model ...')
-        torch.save(model.state_dict(), os.path.join(self.path, 'timesnet.pth'))
 
 class TimesNet(BaseDeepAD):
     """
@@ -185,7 +178,7 @@ class TimesNet(BaseDeepAD):
                       f'training loss: {loss:.9f}, '
                       f'time: {time.time() - t1:.1f}s')
                 
-            early_stop(loss, self.net)
+            early_stop(loss)
             if early_stop.early_stop:
                 print("Early stopping")
                 break

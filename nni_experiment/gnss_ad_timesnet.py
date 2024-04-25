@@ -1,7 +1,8 @@
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
-from deepod.models.time_series import TimesNet as Model
+#from deepod.models.time_series import TimesNet as Model
+from model.timesnet import TimesNet as Model
 import sklearn
 import nni
 import pandas as pd
@@ -42,8 +43,8 @@ def train(params: dict, gnss_data_path: str, gnss_label_path:str) -> float:
 
 if __name__ == '__main__':
     
-    gnss_data_path = 'dataset/NEU/train.csv'
-    gnss_label_path = 'dataset/NEU/test_label.csv'
+    gnss_data_path = '../dataset/NEU/train.csv'
+    gnss_label_path = '../dataset/NEU/test_label.csv'
     
     # Hyperparameters
     params = {
