@@ -2,6 +2,8 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 #from deepod.models.time_series import TimesNet as Model
+import sys
+sys.path.append('.')
 from model.timesnet import TimesNet as Model
 import sklearn
 import nni

@@ -25,7 +25,7 @@ searchSpace:
     _type: choice
     _value: [64]
   dropout:
-    _type: uniform
+    _type: choice
     _value: [0.25]
   top_k:
     _type: choice
@@ -42,7 +42,7 @@ searchSpace:
   delta:
     _type: choice
     _value: [2.0e-6]
-trialCommand: python nni_experiment/gnss_ad_timesnet.py
+trialCommand: python nni_timesnet_experiment.py
 trialCodeDirectory: .
 #trialGpuNumber: 0
 trialConcurrency: 1
