@@ -133,7 +133,7 @@ class GNSSPreprocessor():
         return neu_df_train, neu_df_test_label
     
 if __name__ == '__main__':
-        stations = ['BRAZ', 'EPEC']
+        stations = ['BRAZ', 'EPEC', 'CHEC']
         destination = 'dataset'
 
         '''

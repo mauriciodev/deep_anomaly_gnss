@@ -36,7 +36,7 @@ experiment.config.trial_concurrency = 1
 experiment.config.max_trial_number = 50
 experiment.config.tuner.name = 'TPE'
 experiment.config.tuner.class_args['optimize_mode'] = 'maximize'
-#experiment.config.training_service.use_active_gpu = True
+experiment.config.training_service.use_active_gpu = True
 
 # Run it!
 experiment.run(port=8080, wait_completion=False)
