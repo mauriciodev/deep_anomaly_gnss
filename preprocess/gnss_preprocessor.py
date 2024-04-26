@@ -52,25 +52,28 @@ class GNSSPreprocessor():
             
             # Reading NEU file into dataframes
             df, dsc_df = self.read_NEU(neu_filepath)
+
+            if df is None:
+                return
             
-            # Proe-processing dataframes
+            # Preprocessing dataframes
             neu_df_train, neu_df_test_label = self.preprocess_NEU(df, dsc_df)
             
             # Saving the dataframes
             neu_df_train_filename = f'{station}_NEU_train.csv'
             neu_df_train_filepath = os.path.join(station_folder,neu_df_train_filename)
-            preprocessor.save_dataframe(neu_df_train_filepath, neu_df_train)
+            self.save_dataframe(neu_df_train_filepath, neu_df_train)
 
             neu_df_test_label_filename = f'{station}_NEU_test_label.csv'
             neu_df_test_label_filepath = os.path.join(station_folder,neu_df_test_label_filename)
-            preprocessor.save_dataframe(neu_df_test_label_filepath, neu_df_test_label)
+            self.save_dataframe(neu_df_test_label_filepath, neu_df_test_label)
             
             # Saving the plot
             plot_filename = f'{station}.png'
             plot_filepath = os.path.join(station_folder, plot_filename)
-            self.save_plot(neu_df_train, neu_df_test_label, plot_filepath)
+            self.save_plot(station, neu_df_train, neu_df_test_label, plot_filepath)
             
-    def save_plot(self, neu_df_train:pd.DataFrame, neu_df_test_label:pd.DataFrame, plot_filepath:str) -> None:
+    def save_plot(self, station:str, neu_df_train:pd.DataFrame, neu_df_test_label:pd.DataFrame, plot_filepath:str) -> None:
         plt.clf()
         #plotting data
         plt.plot(neu_df_train.gps_week, neu_df_train['dn(m)'], label = 'Series DN')
@@ -82,23 +85,39 @@ class GNSSPreprocessor():
         plt.vlines(anomalies.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'black', alpha=0.5, label='Descontinuity')
 
         plt.legend()
+        plt.title(f'Station: {station}', loc='center')
         plt.savefig(plot_filepath, format='png')
             
     def read_NEU(self, filepath:str) -> tuple[pd.DataFrame, pd.DataFrame]:
         with open(filepath,'r', encoding='ISO-8859-15') as a:
             s = a.read()
             # Reading only the data that is between the  -------- lines 
-            data = re.search(r'------\n(.*)\n-----', s, flags=re.DOTALL).group(1)
+            try:
+                data = re.search(r'------\n(.*)\n-----', s, flags=re.DOTALL).group(1)
+            except AttributeError:
+                data = None
             
-            # Reading the discontitnuities
-            dsc = re.search(r'Discontinuities detected at this station:\n(.*)\n\n', s, flags=re.DOTALL).group(1)
-        
-        dsc_df = pd.read_fwf(StringIO(dsc), widths=[13,67], header=None, parse_dates=True, names=['civil_date', 'motive'])
-        dsc_df.civil_date = pd.to_datetime(dsc_df.civil_date, format='%Y-%m-%d')
+            # Reading the discontinuities
+            try:
+                dsc = re.search(r'Discontinuities detected at this station:\n(.*)\n\n', s, flags=re.DOTALL).group(1)
+            except AttributeError:
+                dsc = None
 
         inputHeaders = ["yyyy.yyyy",'civil_date', 'gps_week', 'geoframe', "station_id", "station_dome", "dn(m)", "de(m)","du(m)", "sig_dn(m)", "sig_de(m)", "sig_du(m)"] 
-        df = pd.read_csv(StringIO(data),  sep='\s+', names=inputHeaders)
-        df.civil_date = pd.to_datetime(df.civil_date, format='%Y-%m-%d')
+
+        if dsc is not None and 'None' not in dsc:
+            dsc_df = pd.read_fwf(StringIO(dsc), widths=[13,67], header=None, parse_dates=True, names=['civil_date', 'motive'])
+            dsc_df.civil_date = pd.to_datetime(dsc_df.civil_date, format='%Y-%m-%d', errors='coerce')
+            dsc_df.dropna(inplace=True)
+        else:
+            dsc_df = None
+
+        if data is not None and 'None' not in data:
+            df = pd.read_csv(StringIO(data),  sep='\s+', names=inputHeaders)
+            df.civil_date = pd.to_datetime(df.civil_date, format='%Y-%m-%d', errors='coerce')
+            df.dropna(inplace=True)
+        else:
+            df = None
 
         return df, dsc_df
     
@@ -113,11 +132,12 @@ class GNSSPreprocessor():
         # Adding a label column
         neu_df['label'] = 0
         
-        # Calculating the values for GPS Week for the civil dates of our discontinuities
-        gps_week = self.get_gps_week(dsc_df.civil_date)
+        if dsc_df is not None:
+            # Calculating the values for GPS Week for the civil dates of our discontinuities
+            gps_week = self.get_gps_week(dsc_df.civil_date)
         
-        # Setting the labels to 1 for those gps weeks
-        neu_df.loc[neu_df['gps_week'].isin(gps_week), 'label'] = 1
+            # Setting the labels to 1 for those gps weeks
+            neu_df.loc[neu_df['gps_week'].isin(gps_week), 'label'] = 1
         
         # Columns to be removed
         column_names = ['yyyy.yyyy', 'civil_date', 'geoframe', 'station_id', 'station_dome', 'sig_dn(m)', 'sig_de(m)', 'sig_du(m)']
@@ -131,17 +151,38 @@ class GNSSPreprocessor():
         neu_df_test_label = neu_df.drop(column_names+data_columns, axis=1)
         
         return neu_df_train, neu_df_test_label
+
+def read_stations_file(stations_file:str) -> list:
+    try:
+        with open(stations_file) as file:
+            content = file.read()
+            content = content.replace(' ', '')
+            return content.split(',')
+    except FileNotFoundError as e:
+        print(f"Error: File '{stations_file}' not found.")
+        return []
+    except Exception as e:
+        print(f"Error reading file '{stations_file}': {e}")
+        return []
+
+def exec_preprocess():
+    # Brazilian Stations
+    br_stations_filepath = 'dataset/brazil_stations.txt'
+    br_stations = read_stations_file(br_stations_filepath)
+
+    stations = br_stations
+
+    # Execute download and preprocess
+    destination = 'dataset'
+    '''
+    # Downloading data
+        1. Download
+        2. Pre-process
+        3. Save pre-processed CSV
+        4. Save plot
+    '''
+    preprocessor = GNSSPreprocessor(stations=stations, destination=destination)
+    preprocessor.download_sirgas()
     
 if __name__ == '__main__':
-        stations = ['BRAZ', 'EPEC', 'CHEC']
-        destination = 'dataset'
-
-        '''
-        # Downloading data
-            1. Download
-            2. Pre-process
-            3. Save pre-processed CSV
-            4. Save plot
-        '''
-        preprocessor = GNSSPreprocessor(stations=stations, destination=destination)
-        preprocessor.download_sirgas()
+    exec_preprocess()
