@@ -62,11 +62,11 @@ class GNSSPreprocessor():
             # Saving the dataframes
             neu_df_train_filename = f'{station}_NEU_train.csv'
             neu_df_train_filepath = os.path.join(station_folder,neu_df_train_filename)
-            preprocessor.save_dataframe(neu_df_train_filepath, neu_df_train)
+            self.save_dataframe(neu_df_train_filepath, neu_df_train)
 
             neu_df_test_label_filename = f'{station}_NEU_test_label.csv'
             neu_df_test_label_filepath = os.path.join(station_folder,neu_df_test_label_filename)
-            preprocessor.save_dataframe(neu_df_test_label_filepath, neu_df_test_label)
+            self.save_dataframe(neu_df_test_label_filepath, neu_df_test_label)
             
             # Saving the plot
             plot_filename = f'{station}.png'
@@ -150,30 +150,38 @@ class GNSSPreprocessor():
         neu_df_test_label = neu_df.drop(column_names+data_columns, axis=1)
         
         return neu_df_train, neu_df_test_label
+
+def read_stations_file(stations_file:str) -> list:
+    try:
+        with open(stations_file) as file:
+            content = file.read()
+            content = content.replace(' ', '')
+            return content.split(',')
+    except FileNotFoundError as e:
+        print(f"Error: File '{stations_file}' not found.")
+        return []
+    except Exception as e:
+        print(f"Error reading file '{stations_file}': {e}")
+        return []
+
+def exec_preprocess():
+    # Brazilian Stations
+    br_stations_filepath = 'dataset/brazil_stations.txt'
+    br_stations = read_stations_file(br_stations_filepath)
+
+    stations = br_stations
+
+    # Execute download and preprocess
+    destination = 'dataset'
+    '''
+    # Downloading data
+        1. Download
+        2. Pre-process
+        3. Save pre-processed CSV
+        4. Save plot
+    '''
+    preprocessor = GNSSPreprocessor(stations=stations, destination=destination)
+    preprocessor.download_sirgas()
     
 if __name__ == '__main__':
-        #'''
-        stations = [
-            'ALAR', 'AMCO', 'BABR', 'BAIR', 'BELE', 'BOAV', 'BOMJ', 'BRAZ', 'BRFT', 
-            'CEFE', 'CHPI', 'CRAT', 'CUCU', 'CUIB', 'EBYP', 'GOGY', 'GOJA', 'GVA1', 
-            'IGM1', 'ILHA', 'IMBT', 'IMPZ', 'KOUR', 'LPGS', 'MABA', 'MARA', 'MCLA', 
-            'MGBH', 'MGIN', 'MGUB', 'MSCG', 'MSMJ', 'MSPP', 'MTCO', 'MTJI', 'MTSF', 
-            'MTSR', 'NAUS', 'NEIA', 'OURI', 'PAIT', 'PBCG', 'PEPE', 'PISR', 'PITN', 
-            'PMB1', 'POAL', 'POLI', 'POVE', 'PPTE', 'RECF', 'RIOB', 'RIOD', 'RJCG', 
-            'RNMO', 'RNNA', 'ROCD', 'ROGM', 'ROJI', 'ROSA', 'SAGA', 'SALU', 'SCCH', 
-            'SCLA', 'SCR1', 'SJRP', 'SMAR', 'SPJA', 'SSA1', 'SVIC', 'TOGU', 'TOPL', 
-            'TUNA', 'UBE1', 'UNRO', 'UYDU', 'UYMO', 'VALL', 'VBCA', 'VICO', 'VIVI', 'YCBA'
-        ]
-        #'''
-        #stations = ['SCR1']
-        destination = 'dataset'
-
-        '''
-        # Downloading data
-            1. Download
-            2. Pre-process
-            3. Save pre-processed CSV
-            4. Save plot
-        '''
-        preprocessor = GNSSPreprocessor(stations=stations, destination=destination)
-        preprocessor.download_sirgas()
+    exec_preprocess()

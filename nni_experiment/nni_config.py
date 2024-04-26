@@ -9,7 +9,7 @@ import signal
 from nni.experiment import Experiment
 
 params = {
-    'seq_len':{"_type": "choice", "_value": [10, 20, 30]},
+    'seq_len':{"_type": "randint", "_value": [10, 20]},
     'e_layers':{"_type": "choice", "_value": [2, 3]},
     'd_model':{"_type": "choice", "_value": [32, 64, 128]},
     'd_ff':{"_type": "choice", "_value": [64, 128]},
