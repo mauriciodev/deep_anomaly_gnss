@@ -1,1 +1,1 @@
-{"Type": "Global", "Accuracy": 0.9913394919168591, "Precision": "[0.99,0.64]", "Recall": "[1.  ,0.39]", "F1": 0.4827586206896552, "Processing Time:": "94.20 seconds"}
+{"Type": "Global", "Accuracy": 0.988084122537904, "Precision": "[0.99,0.27]", "Recall": "[1.  ,0.07]", "F1": 0.11258278145695365, "Processing Time:": "425.22 seconds"}

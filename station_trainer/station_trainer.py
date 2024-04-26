@@ -48,8 +48,8 @@ class StationTrainer():
             'device': 'mps', 
             'pred_len': 0, 
             'e_layers': 3, 
-            'd_model': 128, 
-            'd_ff': 128, 
+            'd_model': 64, 
+            'd_ff': 64, 
             'dropout': 0.3, 
             'top_k': 3, 
             'num_kernels': 6, 
@@ -128,14 +128,14 @@ class StationTrainer():
         fig, ax1 = plt.subplots()
 
         # Plot GNSS data on the primary y-axis
-        lines1 = ax1.plot(self.gnss_data.gps_week, self.gnss_data['dn(m)'], color = 'cornflowerblue', label = 'Series DN')
-        lines2 = ax1.plot(self.gnss_data.gps_week, self.gnss_data['de(m)'], color = 'gold', label = 'Series DE')
-        lines3 = ax1.plot(self.gnss_data.gps_week, self.gnss_data['du(m)'], color = 'magenta', label = 'Series DU')
+        ax1.plot(self.gnss_data.gps_week, self.gnss_data['dn(m)'], color = 'cornflowerblue', label = 'Series DN')
+        ax1.plot(self.gnss_data.gps_week, self.gnss_data['de(m)'], color = 'gold', label = 'Series DE')
+        ax1.plot(self.gnss_data.gps_week, self.gnss_data['du(m)'], color = 'magenta', label = 'Series DU')
 
         self.gnss_label['pred'] = pred
         # Plotting anomalies
         anomalies = self.gnss_label[self.gnss_label.label == 1]
-        ax1.vlines(anomalies.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'black', alpha=0.5, label='Descontinuity')
+        ax1.vlines(anomalies.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'black', linestyle='dashed', alpha=0.5, label='Descontinuity')
 
         # Plotting predictions
         predictions = self.gnss_label[self.gnss_label.pred == 1]
@@ -145,10 +145,7 @@ class StationTrainer():
         ax2 = ax1.twinx()
 
         # Plot data3 on the secondary y-axis
-        lines4 = ax2.plot(self.gnss_data.gps_week, scores, color='black', linewidth=0.5, label='Scores')
-
-        # Combine lines from both axes for legend
-        all_lines = lines1 + lines2 + lines3 + lines4
+        ax2.plot(self.gnss_data.gps_week, scores, color='black', linewidth=0.5, label='Scores')
 
         # Set labels for axes
         ax1.set_xlabel('GPS Week')
@@ -156,7 +153,10 @@ class StationTrainer():
         ax2.set_ylabel('Normalized Score [0-1]')
 
         # Add legend using all lines
-        plt.legend(all_lines, [l.get_label() for l in all_lines])
+        # ask matplotlib for the plotted objects and their labels
+        lines, labels = ax1.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax2.legend(lines + lines2, labels + labels2, loc=0)
 
         # Save the plot
         plt.title(f'Station: {self.station}', loc='center')
