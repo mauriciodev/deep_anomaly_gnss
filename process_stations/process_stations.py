@@ -66,6 +66,6 @@ def process_stations(stations:list):
 if __name__ == '__main__':
     stations_filepath = 'dataset/brazil_stations.txt'
     stations = read_stations_file(stations_filepath)
-    stations = ['BRAZ', 'CHEC']
+    #stations = ['BRAZ', 'CHEC']
 
     process_stations(stations=stations)
