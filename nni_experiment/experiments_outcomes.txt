@@ -1,405 +1,46 @@
-BRAZ Experiments------------------------------
-2024-04-20 16:46:38 - zw701cmj (f1 = 0.476190)
 searchSpace:
   seq_len:
     _type: choice
-    _value: [100, 50, 25, 10]
-  lr:
-    _type: loguniform
-    _value: [1e-4, 1e-2]
-  batch_size:
+    _value: [10, 20, 30]
+  e_layers:
+    _type: choice
+    _value: [2, 3]
+  d_model:
     _type: choice
     _value: [32, 64, 128]
-  epoch_steps:
-    _type: choice
-    _value: [10, 20, 30, 40, 50]
-  e_layers:
-    _type: choice
-    _value: [2, 3, 4]
-  d_model:
-    _type: choice
-    _value: [64, 128, 256]
-  d_ff:
-    _type: choice
-    _value: [64, 128, 256]
-  dropout:
-    _type: uniform
-    _value: [0.1, 0.3]
-  top_k:
-    _type: randint
-    _value: [3, 11]
-  num_kernels:
-    _type: choice
-    _value: [3, 6, 12]
-  percentile:
-    _type: uniform
-    _value: [96, 99]
-
-best = {
-    "seq_len": 10,
-    "lr": 0.00017235817200953328,
-    "batch_size": 64,
-    "epoch_steps": 40,
-    "e_layers": 4,
-    "d_model": 128,
-    "d_ff": 256,
-    "dropout": 0.15843212427732323,
-    "top_k": 3,
-    "num_kernels": 12,
-    "percentile": 98.88698512755666
-}
-
-2024-04-21 01:22:19 - rwfe0mtj (f1 = 0.50)
-searchSpace:
-  seq_len:
-    _type: choice
-    _value: [10, 20]
-  lr:
-    _type: loguniform
-    _value: [1e-4, 1e-2]
-  #epochs:
-  #  _type: choice
-  #  _value: [5, 10, 15]
-  batch_size:
-    _type: choice
-    _value: [64]
-  epoch_steps:
-    _type: choice
-    _value: [40, 50]
-  e_layers:
-    _type: choice
-    _value: [2, 3, 4]
-  d_model:
-    _type: choice
-    _value: [64, 128, 256]
-  d_ff:
-    _type: choice
-    _value: [64, 128, 256]
-  dropout:
-    _type: uniform
-    _value: [0.1, 0.2]
-  top_k:
-    _type: randint
-    _value: [3, 7]
-  num_kernels:
-    _type: choice
-    _value: [6, 8, 10, 12]
-  percentile:
-    _type: uniform
-    _value: [98, 99]
-
-best = {
-    "seq_len": 20,
-    "lr": 0.00013355336502302563,
-    "batch_size": 64,
-    "epoch_steps": 40,
-    "e_layers": 3,
-    "d_model": 256,
-    "d_ff": 64,
-    "dropout": 0.11291230119704151,
-    "top_k": 6,
-    "num_kernels": 12,
-    "percentile": 98.98904398291796
-}
-
-[2024-04-21 21:57:35] - ui0pft2v (f1 = 0.50)
-searchSpace:
-  seq_len:
-    _type: choice
-    _value: [20, 30]
-  lr:
-    _type: loguniform
-    _value: [1e-4, 1e-2]
-  #epochs:
-  #  _type: choice
-  #  _value: [5, 10, 15]
-  batch_size:
-    _type: choice
-    _value: [64]
-  epoch_steps:
-    _type: choice
-    _value: [40, 50]
-  e_layers:
-    _type: choice
-    _value: [2, 3]
-  d_model:
-    _type: choice
-    _value: [256, 512]
-  d_ff:
-    _type: choice
-    _value: [64]
-  dropout:
-    _type: uniform
-    _value: [0.1, 0.2]
-  top_k:
-    _type: choice
-    _value: [5, 6, 7, 8]
-  num_kernels:
-    _type: choice
-    _value: [6, 12]
-  percentile:
-    _type: uniform
-    _value: [98.5, 99.5]
-
-best = {
-    "seq_len": 20,
-    "lr": 0.000152933957159317,
-    "batch_size": 64,
-    "epoch_steps": 40,
-    "e_layers": 2,
-    "d_model": 256,
-    "d_ff": 64,
-    "dropout": 0.1580321368324562,
-    "top_k": 7,
-    "num_kernels": 6,
-    "percentile": 99.31306129399293
-}
-
-[2024-04-22 14:12:15] i6tsngw7 (f1 = 0.57)
-searchSpace:
-  seq_len:
-    _type: choice
-    _value: [20]
-  lr:
-    _type: loguniform
-    _value: [1e-4, 3e-4]
-  #epochs:
-  #  _type: choice
-  #  _value: [5, 10, 15]
-  batch_size:
-    _type: choice
-    _value: [64]
-  epoch_steps:
-    _type: choice
-    _value: [40]
-  e_layers:
-    _type: choice
-    _value: [3]
-  d_model:
-    _type: choice
-    _value: [256]
-  d_ff:
-    _type: choice
-    _value: [64]
-  dropout:
-    _type: uniform
-    _value: [0.10, 0.16]
-  top_k:
-    _type: choice
-    _value: [6]
-  num_kernels:
-    _type: choice
-    _value: [6]
-  percentile:
-    _type: uniform
-    _value: [99, 99.5]
-  patience:
-    _type: choice
-    _value: [5, 7]
-  delta:
-    _type: uniform
-    _value: [1e-6, 5e-6]
-
-best = {
-    "seq_len": 20,
-    "lr": 1.23e-04,
-    "batch_size": 64,
-    "epoch_steps": 40,
-    "e_layers": 2,
-    "d_model": 256,
-    "d_ff": 64,
-    "dropout": 0.13,
-    "top_k": 7,
-    "num_kernels": 6,
-    "percentile": 99.47,
-    "patience": 5,
-    "delta": 0.0000021973736433685103
-}
-
-EPEC Experiments-----------------------
-[2024-04-23 21:11:20] 31giwhmb (f1 = 40%)
-searchSpace:
-  seq_len:
-    _type: choice
-    _value: [20]
-  lr:
-    _type: loguniform
-    _value: [1e-4, 3e-4]
-  #epochs:
-  #  _type: choice
-  #  _value: [5, 10, 15]
-  batch_size:
-    _type: choice
-    _value: [64]
-  epoch_steps:
-    _type: choice
-    _value: [40]
-  e_layers:
-    _type: choice
-    _value: [3]
-  d_model:
-    _type: choice
-    _value: [256]
-  d_ff:
-    _type: choice
-    _value: [64]
-  dropout:
-    _type: uniform
-    _value: [0.10, 0.16]
-  top_k:
-    _type: choice
-    _value: [6]
-  num_kernels:
-    _type: choice
-    _value: [6]
-  percentile:
-    _type: uniform
-    _value: [99, 99.5]
-  patience:
-    _type: choice
-    _value: [5, 7]
-  delta:
-    _type: uniform
-    _value: [1e-6, 5e-6]
-
-10 models with same results. This is the mean value of the parameters
-best = {
-    "seq_len": 20,
-    "lr": 1.50e-04,
-    "batch_size": 64,
-    "epoch_steps": 40,
-    "e_layers": 3,
-    "d_model": 256,
-    "d_ff": 64,
-    "dropout": 0.14,
-    "top_k": 6,
-    "num_kernels": 6,
-    "percentile": 99.47,
-    "patience": 6,
-    "delta": 3.40e-06
-}
-
-CHEC Experiments-------------
-[2024-04-24 09:06:33] yfec5hrb (f1=28.57%)
-searchSpace:
-  seq_len:
-    _type: choice
-    _value: [20]
-  lr:
-    _type: loguniform
-    _value: [1e-4, 3e-4]
-  #epochs:
-  #  _type: choice
-  #  _value: [5, 10, 15]
-  batch_size:
-    _type: choice
-    _value: [64]
-  epoch_steps:
-    _type: choice
-    _value: [40]
-  e_layers:
-    _type: choice
-    _value: [3]
-  d_model:
-    _type: choice
-    _value: [256]
-  d_ff:
-    _type: choice
-    _value: [64]
-  dropout:
-    _type: uniform
-    _value: [0.10, 0.2]
-  top_k:
-    _type: choice
-    _value: [6, 7]
-  num_kernels:
-    _type: choice
-    _value: [6]
-  percentile:
-    _type: uniform
-    _value: [96, 99.5]
-  patience:
-    _type: choice
-    _value: [5, 7]
-  delta:
-    _type: uniform
-    _value: [1e-6, 5e-6]
-
-4 models with same results. This is the mean value of the parameters
-best = {
-    "seq_len": 20,
-    "lr": 2.88e-4,
-    "batch_size": 64,
-    "epoch_steps": 40,
-    "e_layers": 3,
-    "d_model": 256,
-    "d_ff": 64,
-    "dropout": 0.16,
-    "top_k": 7,
-    "num_kernels": 6,
-    "percentile": 99.47,
-    "patience": 7,
-    "delta": 1.57e-6
-}
-
-[2024-04-24 12:48:33] 64gezxts (f1 = 30.77%)
-searchSpace:
-  seq_len:
-    _type: choice
-    _value: [20, 30]
-  lr:
-    _type: loguniform
-    _value: [1e-4, 3e-4]
-  #epochs:
-  #  _type: choice
-  #  _value: [5, 10, 15]
-  batch_size:
-    _type: choice
-    _value: [64]
-  epoch_steps:
-    _type: choice
-    _value: [40]
-  e_layers:
-    _type: choice
-    _value: [2, 3]
-  d_model:
-    _type: choice
-    _value: [256, 512]
   d_ff:
     _type: choice
     _value: [64, 128]
   dropout:
     _type: uniform
-    _value: [0.10, 0.3]
+    _value: [0.1, 0.5]
   top_k:
     _type: choice
-    _value: [5, 6, 7]
-  num_kernels:
-    _type: choice
-    _value: [3, 6, 12]
+    _value: [3, 5]
   percentile:
     _type: uniform
-    _value: [96, 99.5]
-  patience:
-    _type: choice
-    _value: [5, 7]
-  delta:
-    _type: uniform
-    _value: [1e-6, 5e-6]
+    _value: [99, 99.9]
 
-Approximation from the original values to reduce decimals
+BRAZ Experiment------------------------------
+[2024-04-25 23:58:52] Creating experiment, Experiment ID: e59svatl (f1 = 66.67%)
 best = {
-    "seq_len": 20,
-    "lr": 2.8e-4,
-    "batch_size": 64,
-    "epoch_steps": 40,
-    "e_layers": 3,
-    "d_model": 512,
+    "seq_len": 10,
+    "e_layers": 2,
+    "d_model": 64,
     "d_ff": 64,
-    "dropout": 0.25,
-    "top_k": 6,
-    "num_kernels": 3,
-    "percentile": 98.3605,
-    "patience": 5,
-    "delta": 2e-6
+    "dropout": 0.47699359015507503,
+    "top_k": 5,
+    "percentile": 99.38824081972099
+}
+
+CHEC Experiment------------------------------
+[2024-04-26 00:31:27] Creating experiment, Experiment ID: 5nulm3ry (f1 = 40%)
+best = {
+    "seq_len": 10,
+    "e_layers": 2,
+    "d_model": 32,
+    "d_ff": 64,
+    "dropout": 0.32540843023927113,
+    "top_k": 3,
+    "percentile": 99.8933241109212
 }

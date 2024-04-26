@@ -64,33 +64,11 @@ def train(params: dict, gnss_data_path: str, gnss_label_path:str) -> float:
 
 if __name__ == '__main__':
     
-    gnss_data_path = 'dataset/BRAZ/BRAZ_NEU_train.csv'
-    gnss_label_path = 'dataset/BRAZ/BRAZ_NEU_test_label.csv'
+    gnss_data_path = 'dataset/CHEC/CHEC_NEU_train.csv'
+    gnss_label_path = 'dataset/CHEC/CHEC_NEU_test_label.csv'
     
     # Best Hyperparameters
-    params = {
-        'seq_len':20,
-        'stride':1,
-        'lr':1.3e-4,
-        'epochs':30,
-        'batch_size':64,
-        'epoch_steps':40,
-        'prt_steps':1,
-        'pred_len':0,
-        'e_layers':2,
-        'd_model':256,
-        'd_ff':64,
-        'dropout':0.15,
-        'top_k':7,
-        'num_kernels':6,
-        'verbose':2,
-        'random_state':42,
-        'percentile':99.49872516813187,
-        'device':'mps',
-        'patience':3,
-        'delta':2e-6,
-    }
-    
+    params = {'seq_len': 10, 'stride': 1, 'lr': 0.0001, 'epochs': 10, 'batch_size': 128, 'epoch_steps': -1, 'prt_steps': 1, 'device': 'mps', 'pred_len': 0, 'e_layers': 2, 'd_model': 32, 'd_ff': 64, 'dropout': 0.32540843023927113, 'top_k': 3, 'num_kernels': 6, 'verbose': 2, 'random_state': 42, 'percentile': 99.8933241109212, 'patience': 3, 'delta': 1e-06}    
     # Training
     f1 = train(
         params=params, 
