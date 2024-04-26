@@ -4,6 +4,7 @@ import pandas as pd
 import sklearn
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import MinMaxScaler
 
 # Importing our custom TimesNet with Convergence Early Stop
 import sys
@@ -82,6 +83,8 @@ class StationTrainer():
         
         # Getting scores
         scores = model.decision_function(training_data)
+        scaler = MinMaxScaler(feature_range=(0, 1))
+        scores = scaler.fit_transform(scores.reshape(-1, 1))
 
         # Calculating predictions based on a percentile
         threshold = np.percentile(scores, params['percentile'])
@@ -117,7 +120,8 @@ class StationTrainer():
         plt.vlines(predictions.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'red', alpha=0.5, label='Prediction')
 
         # Plotting scores
-        plt.plot(self.gnss_data.gps_week, scores, color = 'black', label = 'Scores')
+        ax2 = plt.twinx()
+        ax2.plot(self.gnss_data.gps_week, scores, color='black', linewidth=0.5, label='Scores')
 
         plt.legend()
         plt.title(f'Station: {self.station}', loc='center')
