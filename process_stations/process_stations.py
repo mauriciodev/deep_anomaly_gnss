@@ -1,6 +1,7 @@
 import numpy as np
 import sklearn
 import time
+import json
 
 import sys
 sys.path.append('.')
@@ -43,7 +44,7 @@ def process_stations(stations:list):
         # Saving Station metrics
         station_trainer.save_metrics(metrics=metrics)
     end = time.time()
-    
+
     # Elapsed time
     elapsed_time = end - start
 
@@ -51,6 +52,7 @@ def process_stations(stations:list):
     stacked_truth = np.hstack([*total_truth])
     stacked_pred = np.hstack([*total_pred])
 
+    # Calculation global metrics
     precision, recall, f1_score, support = sklearn.metrics.precision_recall_fscore_support(stacked_pred, stacked_truth)
     accuracy = sklearn.metrics.accuracy_score(stacked_pred, stacked_truth)
     f1 = sklearn.metrics.f1_score(stacked_pred, stacked_truth)
@@ -70,9 +72,14 @@ def process_stations(stations:list):
         'Processing Time:':f'{elapsed_time:.2f} seconds'
     }
 
+    # Saving the global metrics file
+    with open('dataset/global_metrics.txt', 'w') as result:
+        json.dump(metrics, result)
+
 if __name__ == '__main__':
     stations_filepath = 'dataset/brazil_stations.txt'
     stations = read_stations_file(stations_filepath)
+    # Sample stations to check the code
     #stations = ['BRAZ', 'CHEC']
 
     process_stations(stations=stations)
