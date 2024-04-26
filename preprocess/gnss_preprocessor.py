@@ -52,8 +52,11 @@ class GNSSPreprocessor():
             
             # Reading NEU file into dataframes
             df, dsc_df = self.read_NEU(neu_filepath)
+
+            if df is None:
+                return
             
-            # Proe-processing dataframes
+            # Preprocessing dataframes
             neu_df_train, neu_df_test_label = self.preprocess_NEU(df, dsc_df)
             
             # Saving the dataframes
@@ -88,17 +91,32 @@ class GNSSPreprocessor():
         with open(filepath,'r', encoding='ISO-8859-15') as a:
             s = a.read()
             # Reading only the data that is between the  -------- lines 
-            data = re.search(r'------\n(.*)\n-----', s, flags=re.DOTALL).group(1)
+            try:
+                data = re.search(r'------\n(.*)\n-----', s, flags=re.DOTALL).group(1)
+            except AttributeError:
+                data = None
             
-            # Reading the discontitnuities
-            dsc = re.search(r'Discontinuities detected at this station:\n(.*)\n\n', s, flags=re.DOTALL).group(1)
-        
-        dsc_df = pd.read_fwf(StringIO(dsc), widths=[13,67], header=None, parse_dates=True, names=['civil_date', 'motive'])
-        dsc_df.civil_date = pd.to_datetime(dsc_df.civil_date, format='%Y-%m-%d')
+            # Reading the discontinuities
+            try:
+                dsc = re.search(r'Discontinuities detected at this station:\n(.*)\n\n', s, flags=re.DOTALL).group(1)
+            except AttributeError:
+                dsc = None
 
         inputHeaders = ["yyyy.yyyy",'civil_date', 'gps_week', 'geoframe', "station_id", "station_dome", "dn(m)", "de(m)","du(m)", "sig_dn(m)", "sig_de(m)", "sig_du(m)"] 
-        df = pd.read_csv(StringIO(data),  sep='\s+', names=inputHeaders)
-        df.civil_date = pd.to_datetime(df.civil_date, format='%Y-%m-%d')
+
+        if dsc is not None and 'None' not in dsc:
+            dsc_df = pd.read_fwf(StringIO(dsc), widths=[13,67], header=None, parse_dates=True, names=['civil_date', 'motive'])
+            dsc_df.civil_date = pd.to_datetime(dsc_df.civil_date, format='%Y-%m-%d', errors='coerce')
+            dsc_df.dropna(inplace=True)
+        else:
+            dsc_df = None
+
+        if data is not None and 'None' not in data:
+            df = pd.read_csv(StringIO(data),  sep='\s+', names=inputHeaders)
+            df.civil_date = pd.to_datetime(df.civil_date, format='%Y-%m-%d', errors='coerce')
+            df.dropna(inplace=True)
+        else:
+            df = None
 
         return df, dsc_df
     
@@ -113,11 +131,12 @@ class GNSSPreprocessor():
         # Adding a label column
         neu_df['label'] = 0
         
-        # Calculating the values for GPS Week for the civil dates of our discontinuities
-        gps_week = self.get_gps_week(dsc_df.civil_date)
+        if dsc_df is not None:
+            # Calculating the values for GPS Week for the civil dates of our discontinuities
+            gps_week = self.get_gps_week(dsc_df.civil_date)
         
-        # Setting the labels to 1 for those gps weeks
-        neu_df.loc[neu_df['gps_week'].isin(gps_week), 'label'] = 1
+            # Setting the labels to 1 for those gps weeks
+            neu_df.loc[neu_df['gps_week'].isin(gps_week), 'label'] = 1
         
         # Columns to be removed
         column_names = ['yyyy.yyyy', 'civil_date', 'geoframe', 'station_id', 'station_dome', 'sig_dn(m)', 'sig_de(m)', 'sig_du(m)']
@@ -133,7 +152,20 @@ class GNSSPreprocessor():
         return neu_df_train, neu_df_test_label
     
 if __name__ == '__main__':
-        stations = ['BRAZ', 'EPEC', 'CHEC']
+        #'''
+        stations = [
+            'ALAR', 'AMCO', 'BABR', 'BAIR', 'BELE', 'BOAV', 'BOMJ', 'BRAZ', 'BRFT', 
+            'CEFE', 'CHPI', 'CRAT', 'CUCU', 'CUIB', 'EBYP', 'GOGY', 'GOJA', 'GVA1', 
+            'IGM1', 'ILHA', 'IMBT', 'IMPZ', 'KOUR', 'LPGS', 'MABA', 'MARA', 'MCLA', 
+            'MGBH', 'MGIN', 'MGUB', 'MSCG', 'MSMJ', 'MSPP', 'MTCO', 'MTJI', 'MTSF', 
+            'MTSR', 'NAUS', 'NEIA', 'OURI', 'PAIT', 'PBCG', 'PEPE', 'PISR', 'PITN', 
+            'PMB1', 'POAL', 'POLI', 'POVE', 'PPTE', 'RECF', 'RIOB', 'RIOD', 'RJCG', 
+            'RNMO', 'RNNA', 'ROCD', 'ROGM', 'ROJI', 'ROSA', 'SAGA', 'SALU', 'SCCH', 
+            'SCLA', 'SCR1', 'SJRP', 'SMAR', 'SPJA', 'SSA1', 'SVIC', 'TOGU', 'TOPL', 
+            'TUNA', 'UBE1', 'UNRO', 'UYDU', 'UYMO', 'VALL', 'VBCA', 'VICO', 'VIVI', 'YCBA'
+        ]
+        #'''
+        #stations = ['SCR1']
         destination = 'dataset'
 
         '''
