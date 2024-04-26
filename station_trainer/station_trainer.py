@@ -1,14 +1,15 @@
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
-#from deepod.models.time_series import TimesNet as Model
-import sys
-sys.path.append('.')
-from model.timesnet import TimesNet as Model
 import sklearn
 import pandas as pd
 import numpy as np
-import os
+from sklearn.preprocessing import MinMaxScaler
+
+# Importing our custom TimesNet with Convergence Early Stop
+import sys
+sys.path.append('.')
+from model.timesnet import TimesNet as Model
 
 class StationTrainer():
     def __init__(self, station:str, use_du:bool) -> None:
@@ -44,9 +45,9 @@ class StationTrainer():
             'device': 'mps', 
             'pred_len': 0, 
             'e_layers': 3, 
-            'd_model': 64, 
-            'd_ff': 64, 
-            'dropout': 0.2, 
+            'd_model': 128, 
+            'd_ff': 128, 
+            'dropout': 0.3, 
             'top_k': 3, 
             'num_kernels': 6, 
             'verbose': 2, 
@@ -82,6 +83,8 @@ class StationTrainer():
         
         # Getting scores
         scores = model.decision_function(training_data)
+        scaler = MinMaxScaler(feature_range=(0, 1))
+        scores = scaler.fit_transform(scores.reshape(-1, 1))
 
         # Calculating predictions based on a percentile
         threshold = np.percentile(scores, params['percentile'])
@@ -100,7 +103,7 @@ class StationTrainer():
 
         return scores, truth, pred
 
-    def plot_experiment(self, pred:np.array) -> None:
+    def plot_experiment(self, scores:np.array, pred:np.array) -> None:
         plt.clf()
         #plotting data
         plt.plot(self.gnss_data.gps_week, self.gnss_data['dn(m)'], color = 'cornflowerblue', label = 'Series DN')
@@ -116,6 +119,10 @@ class StationTrainer():
         predictions = self.gnss_label[self.gnss_label.pred == 1]
         plt.vlines(predictions.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'red', alpha=0.5, label='Prediction')
 
+        # Plotting scores
+        ax2 = plt.twinx()
+        ax2.plot(self.gnss_data.gps_week, scores, color='black', linewidth=0.5, label='Scores')
+
         plt.legend()
         plt.title(f'Station: {self.station}', loc='center')
         plt.savefig(self.png_path, format='png')
@@ -125,6 +132,5 @@ if __name__ == '__main__':
     station_trainer = StationTrainer(station=station, use_du=False)
 
     scores, truth, pred = station_trainer.train()
-    print(scores.shape, truth.shape, pred.shape)
 
-    station_trainer.plot_experiment(pred)
+    station_trainer.plot_experiment(scores=scores, pred=pred)

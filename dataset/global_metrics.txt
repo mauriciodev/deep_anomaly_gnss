@@ -1,0 +1,1 @@
+{"Type": "Global", "Accuracy": 0.9897172236503856, "Precision": 

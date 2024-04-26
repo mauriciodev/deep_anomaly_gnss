@@ -1,16 +1,16 @@
-from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
-#from deepod.models.time_series import TimesNet as Model
-import sys
-sys.path.append('.')
-from model.timesnet import TimesNet as Model
 import sklearn
 import nni
 import pandas as pd
 import numpy as np
 import logging
 import os
+
+# Importing our custom TimesNet with Convergence Early Stop
+import sys
+sys.path.append('.')
+from model.timesnet import TimesNet as Model
 
 def get_data(gnss_data_path: str, gnss_label_path:str) -> tuple[pd.DataFrame, pd.DataFrame]:
     return pd.read_csv(gnss_data_path), pd.read_csv(gnss_label_path)
@@ -78,9 +78,9 @@ def exec_process(station:str, use_du:bool = False):
         'device': 'mps', 
         'pred_len': 0, 
         'e_layers': 3, 
-        'd_model': 64, 
-        'd_ff': 64, 
-        'dropout': 0.2, 
+        'd_model': 128, 
+        'd_ff': 128, 
+        'dropout': 0.3, 
         'top_k': 3, 
         'num_kernels': 6, 
         'verbose': 2, 
@@ -107,4 +107,4 @@ def exec_process(station:str, use_du:bool = False):
     nni.report_final_result(f1)
 
 if __name__ == '__main__':
-    exec_process('CHEC', False)
+    exec_process('BRAZ', False)
