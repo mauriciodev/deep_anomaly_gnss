@@ -71,9 +71,9 @@ class GNSSPreprocessor():
             # Saving the plot
             plot_filename = f'{station}.png'
             plot_filepath = os.path.join(station_folder, plot_filename)
-            self.save_plot(neu_df_train, neu_df_test_label, plot_filepath)
+            self.save_plot(station, neu_df_train, neu_df_test_label, plot_filepath)
             
-    def save_plot(self, neu_df_train:pd.DataFrame, neu_df_test_label:pd.DataFrame, plot_filepath:str) -> None:
+    def save_plot(self, station:str, neu_df_train:pd.DataFrame, neu_df_test_label:pd.DataFrame, plot_filepath:str) -> None:
         plt.clf()
         #plotting data
         plt.plot(neu_df_train.gps_week, neu_df_train['dn(m)'], label = 'Series DN')
@@ -85,6 +85,7 @@ class GNSSPreprocessor():
         plt.vlines(anomalies.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'black', alpha=0.5, label='Descontinuity')
 
         plt.legend()
+        plt.title(f'Station: {station}', loc='center')
         plt.savefig(plot_filepath, format='png')
             
     def read_NEU(self, filepath:str) -> tuple[pd.DataFrame, pd.DataFrame]:
