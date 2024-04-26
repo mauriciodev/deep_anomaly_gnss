@@ -1,1 +1,1 @@
-{"Type": "Station", "Accuracy": 0.9842657342657343, "Precision": "[0.99, 0.  ]", "Recall": "[0.99, 0.  ]", "F1": 0.0, "Processing Time:": "9.86 seconds"}
+{"Type": "Station", "Accuracy": 0.9877622377622378, "Precision": "[0.99, 0.33]", "Recall": "[1.  , 0.17]", "F1": 0.2222222222222222, "Processing Time:": "9.95 seconds"}
