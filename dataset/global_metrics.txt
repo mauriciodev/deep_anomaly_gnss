@@ -1,0 +1,12 @@
+
+            Global metrics over all stations:
+
+            Global Accuracy -> 0.9913394919168591
+
+            Global Precision -> [0.99360837 0.63636364]
+
+            Global Recall -> [0.99766628 0.38888889]
+
+            Global F1 -> 0.4827586206896552
+
+            

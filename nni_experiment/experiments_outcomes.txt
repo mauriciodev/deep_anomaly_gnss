@@ -44,3 +44,14 @@ best = {
     "top_k": 3,
     "percentile": 99.8933241109212
 }
+
+Best overall Hyperparameters until 2024-04-26:
+best = {
+    "seq_len": 12,
+    "e_layers": 3,
+    "d_model": 128,
+    "d_ff": 128,
+    "dropout": 0.3,
+    "top_k": 3,
+    "percentile": 99
+}

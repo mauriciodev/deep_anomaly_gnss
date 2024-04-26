@@ -7,7 +7,6 @@ import math
 import time
 from deepod.utils.utility import get_sub_seqs
 from deepod.core.base_model import BaseDeepAD
-import os
 
 class EarlyStop:
     def __init__(self, patience, delta, verbose=True):
