@@ -1,6 +1,6 @@
 import numpy as np
 import sklearn
-import json
+import time
 
 import sys
 sys.path.append('.')
@@ -22,6 +22,7 @@ def read_stations_file(stations_file:str) -> list:
 def process_stations(stations:list):
     total_truth = []
     total_pred = []
+    start = time.time()
     for station in stations:
         # Our station trainer
         station_trainer = StationTrainer(station=station, use_du=False)
@@ -41,6 +42,10 @@ def process_stations(stations:list):
 
         # Saving Station metrics
         station_trainer.save_metrics(metrics=metrics)
+    end = time.time()
+    
+    # Elapsed time
+    elapsed_time = end - start
 
     # Stacking truth and pred
     stacked_truth = np.hstack([*total_truth])
@@ -54,6 +59,7 @@ def process_stations(stations:list):
     print(f"Global Precision: {precision}")
     print(f"Global Recall: {recall}")
     print(f"Global F1 score: {f1}")
+    print(f"Processing time: {elapsed_time:.2f} seconds")
 
     metrics = {
         'Type': 'Global',
@@ -61,6 +67,7 @@ def process_stations(stations:list):
         'Precision':np.array2string(precision, precision=2, separator=','),
         'Recall':np.array2string(recall, precision=2, separator=','),
         'F1':f1,
+        'Processing Time:':f'{elapsed_time:.2f} seconds'
     }
 
 if __name__ == '__main__':

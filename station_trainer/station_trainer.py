@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import json
+import time
 
 # Importing our custom TimesNet with Convergence Early Stop
 import sys
@@ -81,7 +82,12 @@ class StationTrainer():
             training_data = self.gnss_data.iloc[:, [1,2]]
 
         # Training
+        start = time.time()
         model.fit(training_data)
+        end = time.time()
+
+        # Elapsed time
+        elapsed_time = end - start
         
         # Getting scores
         scores = model.decision_function(training_data)
@@ -102,6 +108,7 @@ class StationTrainer():
         print(f"Precision {precision}")
         print(f"Recall {recall}")
         print(f"F1 score {f1}")
+        print(f"Elapsed time: {elapsed_time:.2f} seconds")
 
         metrics = {
             'Type': 'Station',
@@ -109,6 +116,7 @@ class StationTrainer():
             'Precision':np.array2string(precision, precision=2, separator=', '),
             'Recall':np.array2string(recall, precision=2, separator=', '),
             'F1':f1,
+            'Processing Time:':f'{elapsed_time:.2f} seconds'
         }
 
         return scores, truth, pred, metrics
