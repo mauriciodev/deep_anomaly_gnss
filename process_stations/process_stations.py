@@ -2,6 +2,8 @@ import numpy as np
 import sklearn
 import time
 import json
+import tqdm
+import datetime
 
 import sys
 sys.path.append('.')
@@ -24,14 +26,31 @@ def process_stations(stations:list):
     total_truth = []
     total_pred = []
     start = time.time()
-    for station in stations:
-        # Our station trainer
-        station_trainer = StationTrainer(station=station, use_du=False)
-
-        # Actual training
+    for station in (pbar := tqdm.tqdm(stations)):
         try:
+            # Set progress bar message
+            pbar.set_postfix({'Processing Station': station})
+
+            # Our station trainer
+            station_trainer = StationTrainer(station=station, use_du=False)
+
             scores, truth, pred, metrics = station_trainer.train()
-        except:
+        except Exception as e:
+            ts = datetime.datetime.now()
+            exception_message = str(e.args[0])
+            error_message = f'Error processing station: {station}: {exception_message}'
+            print(error_message)
+            pbar.write(error_message)
+            log = {
+                'Processing log': {
+                    'Station':{station},
+                    'Timestamp':{ts},
+                    'Error message':{error_message}
+                }
+            }
+            with open('dataset/{station}/{station}_log.txt', 'w') as file:
+                json.dump(log, file)
+                
             continue
 
         # Gathering station truth and pred for stacking
@@ -80,6 +99,6 @@ if __name__ == '__main__':
     stations_filepath = 'dataset/brazil_stations.txt'
     stations = read_stations_file(stations_filepath)
     # Sample stations to check the code
-    #stations = ['BRAZ', 'CHEC']
+    stations = ['BRAZ', 'CHEC']
 
     process_stations(stations=stations)

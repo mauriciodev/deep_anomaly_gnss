@@ -167,7 +167,7 @@ class StationTrainer():
             json.dump(metrics, result)        
 
 if __name__ == '__main__':
-    station = 'BRAZ'
+    station = 'CHEC'
     station_trainer = StationTrainer(station=station, use_du=False)
 
     scores, truth, pred, metrics = station_trainer.train()
