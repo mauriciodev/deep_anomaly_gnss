@@ -49,7 +49,8 @@ def process_stations(stations:list):
                 }
             }
             with open(f'dataset/{station}/{station}_log.txt', 'w') as file:
-                json.dump(log, file)
+                log_without_sets = {key: list(value) for key, value in log.items() if isinstance(value, set)}
+                json.dump(log_without_sets, file)
                 
             continue
 
