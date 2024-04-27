@@ -48,7 +48,7 @@ def process_stations(stations:list):
                     'Error message':{error_message}
                 }
             }
-            with open('dataset/{station}/{station}_log.txt', 'w') as file:
+            with open(f'dataset/{station}/{station}_log.txt', 'w') as file:
                 json.dump(log, file)
                 
             continue
