@@ -6,6 +6,7 @@ import re
 from io import StringIO
 from matplotlib import pyplot as plt
 import numpy as np
+import argparse
 
 class GNSSPreprocessor():
     def __init__(self, stations:list=['BRAZ'], destination:str='/kaggle/working', update:bool=False):
@@ -166,14 +167,8 @@ def read_stations_file(stations_file:str) -> list:
         print(f"Error reading file '{stations_file}': {e}")
         return []
 
-def exec_preprocess():
-    # Brazilian Stations
-    br_stations_filepath = 'dataset/brazil_stations.txt'
-    ec_stations_filepath = 'dataset/ecuador_stations.txt'
-    br_stations = read_stations_file(br_stations_filepath)
-    ec_stations = read_stations_file(ec_stations_filepath)
-
-    stations = br_stations + ec_stations
+def exec_preprocess(station_list):
+    stations = read_stations_file(station_list)
 
     # Execute download and preprocess
     destination = 'dataset'
@@ -184,8 +179,13 @@ def exec_preprocess():
         3. Save pre-processed CSV
         4. Save plot
     '''
-    preprocessor = GNSSPreprocessor(stations=stations, destination=destination)
+    preprocessor = GNSSPreprocessor(stations=stations, destination=destination, update=False) #change update to True to redownload everything.
     preprocessor.download_sirgas()
     
 if __name__ == '__main__':
-    exec_preprocess()
+    parser = argparse.ArgumentParser(prog='GNSS_preprocessor')
+    parser.add_argument('-s','-stations' , 
+                        help='Station.txt file. A list of 4 digit SIRGAS station codes, separated by comma.',
+                        default='dataset/brazil_stations.txt')           # positional argument
+    station_list = parser.parse_args().s
+    exec_preprocess(station_list)
