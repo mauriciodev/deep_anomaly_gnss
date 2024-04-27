@@ -5,6 +5,8 @@ import sklearn
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
+import json
+import time
 
 # Importing our custom TimesNet with Convergence Early Stop
 import sys
@@ -16,10 +18,11 @@ class StationTrainer():
         self.station = station
         self.use_du = use_du
 
-        # Defining station data filepaths
+        # Defining station filepaths
         self.gnss_data_path = f'dataset/{station}/{station}_NEU_train.csv'
         self.gnss_label_path = f'dataset/{station}/{station}_NEU_test_label.csv'
         self.png_path = f'dataset/{station}/{station}_trained.png'
+        self.metrics_path = f'dataset/{station}/{station}_metrics.txt'
 
         self.gnss_data, self.gnss_label = self.get_data(self.gnss_data_path, self.gnss_label_path)
         
@@ -47,7 +50,7 @@ class StationTrainer():
             'e_layers': 3, 
             'd_model': 128, 
             'd_ff': 128, 
-            'dropout': 0.3, 
+            'dropout': 0.2, 
             'top_k': 3, 
             'num_kernels': 6, 
             'verbose': 2, 
@@ -61,7 +64,7 @@ class StationTrainer():
     def train(self) -> tuple[np.array, np.array, np.array]:
         # Return None in case we don't have data
         if self.gnss_data.empty or  self.gnss_label.empty:
-            return None, None, None
+            return None, None, None, None
         
         # Getting Training parameters
         params = self.get_params()
@@ -79,7 +82,12 @@ class StationTrainer():
             training_data = self.gnss_data.iloc[:, [1,2]]
 
         # Training
+        start = time.time()
         model.fit(training_data)
+        end = time.time()
+
+        # Elapsed time
+        elapsed_time = end - start
         
         # Getting scores
         scores = model.decision_function(training_data)
@@ -100,37 +108,70 @@ class StationTrainer():
         print(f"Precision {precision}")
         print(f"Recall {recall}")
         print(f"F1 score {f1}")
+        print(f"Elapsed time: {elapsed_time:.2f} seconds")
 
-        return scores, truth, pred
+        metrics = {
+            'Type': 'Station',
+            'Accuracy':accuracy,
+            'Precision':np.array2string(precision, precision=2, separator=', '),
+            'Recall':np.array2string(recall, precision=2, separator=', '),
+            'F1':f1,
+            'Processing Time:':f'{elapsed_time:.2f} seconds'
+        }
+
+        return scores, truth, pred, metrics
 
     def plot_experiment(self, scores:np.array, pred:np.array) -> None:
         plt.clf()
-        #plotting data
-        plt.plot(self.gnss_data.gps_week, self.gnss_data['dn(m)'], color = 'cornflowerblue', label = 'Series DN')
-        plt.plot(self.gnss_data.gps_week, self.gnss_data['de(m)'], color = 'gold', label = 'Series DE')
-        plt.plot(self.gnss_data.gps_week, self.gnss_data['du(m)'], color = 'magenta', label = 'Series DU')
-        
+
+        # Create the figure and primary y-axis
+        fig, ax1 = plt.subplots()
+
+        # Plot GNSS data on the primary y-axis
+        ax1.plot(self.gnss_data.gps_week, self.gnss_data['dn(m)'], color = 'cornflowerblue', label = 'Series DN')
+        ax1.plot(self.gnss_data.gps_week, self.gnss_data['de(m)'], color = 'gold', label = 'Series DE')
+        ax1.plot(self.gnss_data.gps_week, self.gnss_data['du(m)'], color = 'magenta', label = 'Series DU')
+
         self.gnss_label['pred'] = pred
         # Plotting anomalies
         anomalies = self.gnss_label[self.gnss_label.label == 1]
-        plt.vlines(anomalies.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'black', alpha=0.5, label='Descontinuity')
+        ax1.vlines(anomalies.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'black', linestyle='dashed', alpha=0.5, label='Descontinuity')
 
         # Plotting predictions
         predictions = self.gnss_label[self.gnss_label.pred == 1]
-        plt.vlines(predictions.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'red', alpha=0.5, label='Prediction')
+        ax1.vlines(predictions.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'red', alpha=0.5, label='Prediction')
 
-        # Plotting scores
-        ax2 = plt.twinx()
+        # Create the secondary y-axis (twinx)
+        ax2 = ax1.twinx()
+
+        # Plot data3 on the secondary y-axis
         ax2.plot(self.gnss_data.gps_week, scores, color='black', linewidth=0.5, label='Scores')
 
-        plt.legend()
+        # Set labels for axes
+        ax1.set_xlabel('GPS Week')
+        ax1.set_ylabel('Deviation in meters (m)')
+        ax2.set_ylabel('Normalized Score [0-1]')
+
+        # Add legend using all lines
+        # ask matplotlib for the plotted objects and their labels
+        lines, labels = ax1.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax2.legend(lines + lines2, labels + labels2, loc=0)
+
+        # Save the plot
         plt.title(f'Station: {self.station}', loc='center')
         plt.savefig(self.png_path, format='png')
 
+    def save_metrics(self, metrics):
+        with open(self.metrics_path, 'w') as result:
+            json.dump(metrics, result)        
+
 if __name__ == '__main__':
-    station = 'BRAZ'
+    station = 'CHEC'
     station_trainer = StationTrainer(station=station, use_du=False)
 
-    scores, truth, pred = station_trainer.train()
+    scores, truth, pred, metrics = station_trainer.train()
 
     station_trainer.plot_experiment(scores=scores, pred=pred)
+
+    station_trainer.save_metrics(metrics=metrics)
