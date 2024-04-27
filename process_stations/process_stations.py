@@ -13,7 +13,7 @@ def read_stations_file(stations_file:str) -> list:
     try:
         with open(stations_file) as file:
             content = file.read()
-            content = content.replace(' ', '')
+            content = content.replace(' ', '').strip()
             return content.split(',')
     except FileNotFoundError as e:
         print(f"Error: File '{stations_file}' not found.")

@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 class GNSSPreprocessor():
-    def __init__(self, stations:list=['BRAZ'], destination:str='/kaggle/working', update:bool=True):
+    def __init__(self, stations:list=['BRAZ'], destination:str='/kaggle/working', update:bool=False):
         self.stations = stations
         self.destination = destination
         self.update = update
@@ -54,7 +54,8 @@ class GNSSPreprocessor():
             df, dsc_df = self.read_NEU(neu_filepath)
 
             if df is None:
-                return
+                print(f"Error processing station {station}.")
+                continue #skip only this station
             
             # Preprocessing dataframes
             neu_df_train, neu_df_test_label = self.preprocess_NEU(df, dsc_df)
@@ -156,7 +157,7 @@ def read_stations_file(stations_file:str) -> list:
     try:
         with open(stations_file) as file:
             content = file.read()
-            content = content.replace(' ', '')
+            content = content.replace(' ', '').strip()
             return content.split(',')
     except FileNotFoundError as e:
         print(f"Error: File '{stations_file}' not found.")
