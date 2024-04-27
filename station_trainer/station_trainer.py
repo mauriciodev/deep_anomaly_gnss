@@ -48,8 +48,8 @@ class StationTrainer():
             'device': 'mps', 
             'pred_len': 0, 
             'e_layers': 3, 
-            'd_model': 128, 
-            'd_ff': 128, 
+            'd_model': 64, 
+            'd_ff': 64, 
             'dropout': 0.2, 
             'top_k': 3, 
             'num_kernels': 6, 
@@ -172,6 +172,7 @@ if __name__ == '__main__':
 
     scores, truth, pred, metrics = station_trainer.train()
 
-    station_trainer.plot_experiment(scores=scores, pred=pred)
+    if (scores is not None) and (truth is not None) and (pred is not None) and (metrics is not None):
+        station_trainer.plot_experiment(scores=scores, pred=pred)
 
-    station_trainer.save_metrics(metrics=metrics)
+        station_trainer.save_metrics(metrics=metrics)

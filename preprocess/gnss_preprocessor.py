@@ -17,8 +17,8 @@ class GNSSPreprocessor():
         filename = os.path.basename(url)
         filepath=os.path.join(station_folder, filename)
         
-        if os.path.exists(filename) and not self.update:
-            print(f'File already exists: {filename}')
+        if os.path.exists(filepath) and not self.update:
+            print(f'File already exists: {filepath}')
         else:
             print(f"Downloading {url} -> {filepath}")
             try:
@@ -168,9 +168,11 @@ def read_stations_file(stations_file:str) -> list:
 def exec_preprocess():
     # Brazilian Stations
     br_stations_filepath = 'dataset/brazil_stations.txt'
+    ec_stations_filepath = 'dataset/ecuador_stations.txt'
     br_stations = read_stations_file(br_stations_filepath)
+    ec_stations = read_stations_file(ec_stations_filepath)
 
-    stations = br_stations
+    stations = br_stations + ec_stations
 
     # Execute download and preprocess
     destination = 'dataset'
