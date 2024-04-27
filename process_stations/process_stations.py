@@ -13,7 +13,7 @@ def read_stations_file(stations_file:str) -> list:
     try:
         with open(stations_file) as file:
             content = file.read()
-            content = content.replace(' ', '')
+            content = content.replace(' ', '').strip()
             return content.split(',')
     except FileNotFoundError as e:
         print(f"Error: File '{stations_file}' not found.")
@@ -35,6 +35,16 @@ def process_stations(stations:list):
             station_trainer = StationTrainer(station=station, use_du=False)
 
             scores, truth, pred, metrics = station_trainer.train()
+            if (scores is not None) and (truth is not None) and (pred is not None) and (metrics is not None):
+                # Gathering station truth and pred for stacking
+                total_truth.append(truth)
+                total_pred.append(pred)
+
+                # Ploting the graph in the dataset/{station} folder
+                station_trainer.plot_experiment(scores=scores, pred=pred)
+
+                # Saving Station metrics
+                station_trainer.save_metrics(metrics=metrics)
         except Exception as e:
             ts = datetime.datetime.now()
             exception_message = str(e.args[0])
@@ -53,16 +63,6 @@ def process_stations(stations:list):
                 json.dump(log_without_sets, file)
                 
             continue
-
-        # Gathering station truth and pred for stacking
-        total_truth.append(truth)
-        total_pred.append(pred)
-
-        # Ploting the graph in the dataset/{station} folder
-        station_trainer.plot_experiment(scores=scores, pred=pred)
-
-        # Saving Station metrics
-        station_trainer.save_metrics(metrics=metrics)
     end = time.time()
 
     # Elapsed time
