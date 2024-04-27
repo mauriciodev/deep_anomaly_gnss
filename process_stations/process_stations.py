@@ -4,6 +4,7 @@ import time
 import json
 import tqdm
 import datetime
+import argparse
 
 import sys
 sys.path.append('.')
@@ -97,7 +98,14 @@ def process_stations(stations:list):
         json.dump(metrics, result)
 
 if __name__ == '__main__':
-    stations_filepath = 'dataset/brazil_stations.txt'
+    parser = argparse.ArgumentParser(prog='Process Stations')
+    parser.add_argument(
+        '-s',
+        '-stations',
+        help='Station.txt file. A list of 4 digit SIRGAS station codes, separated by comma.',
+        default='dataset/brazil_stations.txt' # positional argument
+    )           
+    stations_filepath = parser.parse_args().s
     stations = read_stations_file(stations_filepath)
     # Sample stations to check the code
     #stations = ['BRAZ', 'CHEC']
