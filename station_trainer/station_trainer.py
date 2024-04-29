@@ -39,7 +39,7 @@ class StationTrainer():
     def get_params(self):
         # Best Hyperparameters
         params = {
-            'seq_len': 3, 
+            'seq_len': 10, 
             'stride': 1, 
             'lr': 0.0001, 
             'epochs': 10, 
