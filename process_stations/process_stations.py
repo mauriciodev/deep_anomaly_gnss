@@ -51,17 +51,15 @@ def process_stations(stations:list):
             exception_message = str(e.args[0])
             error_message = f'Error processing station: {station}: {exception_message}'
             print(error_message)
-            pbar.write(error_message)
             log = {
                 'Processing log': {
-                    'Station':{station},
-                    'Timestamp':{ts},
-                    'Error message':{error_message}
+                    'Station':station,
+                    'Timestamp':ts.strftime('%Y-%m-%d %H:%M:%S'),
+                    'Error message':error_message
                 }
             }
             with open(f'dataset/{station}/{station}_log.txt', 'w') as file:
-                log_without_sets = {key: list(value) for key, value in log.items() if isinstance(value, set)}
-                json.dump(log_without_sets, file)
+                json.dump(log, file)
                 
             continue
     end = time.time()
