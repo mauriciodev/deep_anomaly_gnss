@@ -49,8 +49,8 @@ class StationTrainer():
             'device': 'mps', 
             'pred_len': 0, 
             'e_layers': 3, 
-            'd_model': 128, 
-            'd_ff': 128, 
+            'd_model': 64, 
+            'd_ff': 64, 
             'dropout': 0.2, 
             'top_k': 3, 
             'num_kernels': 6, 
@@ -168,7 +168,7 @@ class StationTrainer():
             json.dump(metrics, result)        
 
 if __name__ == '__main__':
-    station = 'CHEC'
+    station = 'BRAZ'
     station_trainer = StationTrainer(station=station, use_du=False)
 
     try:
