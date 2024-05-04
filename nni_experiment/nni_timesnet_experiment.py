@@ -107,4 +107,4 @@ def exec_process(station:str, use_du:bool = False):
     nni.report_final_result(f1)
 
 if __name__ == '__main__':
-    exec_process('BRAZ', False)
+    exec_process('CHEC', False)

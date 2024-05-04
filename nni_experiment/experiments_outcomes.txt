@@ -55,3 +55,50 @@ best = {
     "top_k": 3,
     "percentile": 99
 }
+
+searchSpace:
+  seq_len:
+    _type: choice
+    _value: [10, 20]
+  e_layers:
+    _type: choice
+    _value: [2, 3]
+  d_model:
+    _type: choice
+    _value: [32, 64, 128]
+  d_ff:
+    _type: choice
+    _value: [32, 64, 128]
+  dropout:
+    _type: uniform
+    _value: [0.1, 0.5]
+  top_k:
+    _type: choice
+    _value: [3, 5]
+  percentile:
+    _type: uniform
+    _value: [99, 99.9]
+
+BRAZ Experiment------------------------------
+[2024-05-02 22:10:34] Creating experiment, Experiment ID: kz1qsdje (f1 = 53.33%)
+best = {
+    "seq_len": 10,
+    "e_layers": 2,
+    "d_model": 32,
+    "d_ff": 64,
+    "dropout": 0.4129611964702608,
+    "top_k": 5,
+    "percentile": 99.35804235508338
+}
+
+CHEC Experiment------------------------------
+[2024-05-02 22:54:57] Creating experiment, Experiment ID: x5ly3ak1 (f1 = 57.14%)
+best = {
+    "seq_len": 10,
+    "e_layers": 3,
+    "d_model": 128,
+    "d_ff": 128,
+    "dropout": 0.21560990950231937, 0.26012542239308106, 0.3207724167643946, 0.35500168832708906
+    "top_k": 5,
+    "percentile": 99.4118884436675, 99.49000367913102, 99.59499993707283, 99.47062398683556
+}
