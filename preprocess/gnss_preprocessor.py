@@ -128,7 +128,23 @@ class GNSSPreprocessor():
         
     def get_gps_week(self, time_series:pd.Series) -> pd.Series:
         gps_t0 = pd.to_datetime('1980-01-06T00:00:00')
-        return (np.ceil((time_series-gps_t0).dt.days/7)).astype(int)
+        return ((time_series-gps_t0).dt.days/7).astype(int)
+    
+    def get_next_gps_week(self, gps_week:pd.Series, neu_df:pd.DataFrame) -> list:
+        ''' 
+        This method searches the values of gps_week in neu_df. In case a particular gps_week
+        value is not found, the anomaly sould be set to the next valid value in neu_df.gps_week
+        '''
+        new_gps_week = []
+        for week in gps_week:
+            if week not in neu_df['gps_week']:
+                next_week = min(neu_df[neu_df['gps_week'] > week].gps_week)
+                if not next_week:
+                    next_week = max(neu_df.gps_week)
+                new_gps_week.append(next_week)
+            else:
+                new_gps_week.append(week)
+        return new_gps_week
     
     def preprocess_NEU(self, neu_df:pd.DataFrame, dsc_df:pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
         # Adding a label column
@@ -137,6 +153,7 @@ class GNSSPreprocessor():
         if dsc_df is not None:
             # Calculating the values for GPS Week for the civil dates of our discontinuities
             gps_week = self.get_gps_week(dsc_df.civil_date)
+            gps_week = self.get_next_gps_week(gps_week, neu_df)
         
             # Setting the labels to 1 for those gps weeks
             neu_df.loc[neu_df['gps_week'].isin(gps_week), 'label'] = 1
@@ -179,7 +196,7 @@ def exec_preprocess(stations_filepath):
         3. Save pre-processed CSV
         4. Save plot
     '''
-    preprocessor = GNSSPreprocessor(stations=stations, destination=destination, update=False) #change update to True to redownload everything.
+    preprocessor = GNSSPreprocessor(stations=stations, destination=destination, update=True) #change update to True to redownload everything.
     preprocessor.download_sirgas()
     
 if __name__ == '__main__':
