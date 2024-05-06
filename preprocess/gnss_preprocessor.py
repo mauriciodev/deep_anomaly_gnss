@@ -196,7 +196,7 @@ def exec_preprocess(stations_filepath):
         3. Save pre-processed CSV
         4. Save plot
     '''
-    preprocessor = GNSSPreprocessor(stations=stations, destination=destination, update=True) #change update to True to redownload everything.
+    preprocessor = GNSSPreprocessor(stations=stations, destination=destination, update=False) #change update to True to redownload everything.
     preprocessor.download_sirgas()
     
 if __name__ == '__main__':
