@@ -102,3 +102,58 @@ best = {
     "top_k": 5,
     "percentile": 99.4118884436675, 99.49000367913102, 99.59499993707283, 99.47062398683556
 }
+
+searchSpace:
+  e_layers:
+    _type: choice
+    _value: [2, 3]
+  d_model:
+    _type: choice
+    _value: [32, 64, 128]
+  d_ff:
+    _type: choice
+    _value: [32, 64, 128]
+  dropout:
+    _type: quniform
+    _value: [0.1, 0.5, 0.05]
+  top_k:
+    _type: choice
+    _value: [3, 5]
+  percentile:
+    _type: quniform
+    _value: [99, 99.9, 0.1]
+
+CHEC Experiment------------------------------
+[2024-05-08 12:03:31] Creating experiment, Experiment ID: lo3v9rzh (f1 = 57.14%)
+best = {
+    "e_layers": 3,
+    "d_model": 128,
+    "d_ff": 128,
+    "dropout": 0.4, 0.35
+    "top_k": 5,
+    "percentile": 99.5
+}
+
+CEFT Experiment--------------------------------
+[2024-05-08 12:27:14] Creating experiment, Experiment ID: cqn9lf3u
+best = {
+    "e_layers": 3,
+    "d_model": 128,
+    "d_ff": 128,
+    "dropout": 0.45, 0.5
+    "top_k": 3,
+    "percentile": 99.7
+}
+
+searchSpace:
+  dropout:
+    _type: quniform
+    _value: [0.1, 0.5, 0.05]
+  top_k:
+    _type: choice
+    _value: [3, 5]
+  percentile:
+    _type: quniform
+    _value: [99, 99.9, 0.1]
+
+BRAZ Experiment------------------------------
