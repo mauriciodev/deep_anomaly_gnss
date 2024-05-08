@@ -7,6 +7,7 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import json
 import time
+import datetime
 
 # Importing our custom TimesNet with Convergence Early Stop
 import sys
@@ -48,14 +49,14 @@ class StationTrainer():
             'device': 'mps', 
             'pred_len': 0, 
             'e_layers': 3, 
-            'd_model': 64, 
-            'd_ff': 64, 
-            'dropout': 0.2, 
-            'top_k': 3, 
+            'd_model': 128, 
+            'd_ff': 128, 
+            'dropout': 0.45, 
+            'top_k': 5, 
             'num_kernels': 6, 
             'verbose': 2, 
             'random_state': 42, 
-            'percentile': 99, 
+            'percentile': 99.0, 
             'patience': 3, 
             'delta': 1e-7
         }
@@ -92,14 +93,14 @@ class StationTrainer():
         # Getting scores
         scores = model.decision_function(training_data)
         scaler = MinMaxScaler(feature_range=(0, 1))
-        scores = scaler.fit_transform(scores.reshape(-1, 1))
+        scores = scaler.fit_transform(scores.reshape(-1, 1)).flatten()
 
         # Calculating predictions based on a percentile
         threshold = np.percentile(scores, params['percentile'])
-        pred = (scores > threshold).astype('int').ravel()
+        pred = (scores > threshold).astype('int')
 
         # Calculationg metrics
-        truth = self.gnss_label.label.to_numpy().flatten()
+        truth = self.gnss_label.label.to_numpy()
         precision, recall, f1_score, support = sklearn.metrics.precision_recall_fscore_support(pred, truth)
         accuracy = sklearn.metrics.accuracy_score(pred, truth)
         f1 = sklearn.metrics.f1_score(pred, truth)
@@ -167,12 +168,27 @@ class StationTrainer():
             json.dump(metrics, result)        
 
 if __name__ == '__main__':
-    station = 'CHEC'
+    station = 'BRAZ'
     station_trainer = StationTrainer(station=station, use_du=False)
 
-    scores, truth, pred, metrics = station_trainer.train()
+    try:
+        scores, truth, pred, metrics = station_trainer.train()
 
-    if (scores is not None) and (truth is not None) and (pred is not None) and (metrics is not None):
-        station_trainer.plot_experiment(scores=scores, pred=pred)
+        if (scores is not None) and (truth is not None) and (pred is not None) and (metrics is not None):
+            station_trainer.plot_experiment(scores=scores, pred=pred)
 
-        station_trainer.save_metrics(metrics=metrics)
+            station_trainer.save_metrics(metrics=metrics)
+    except Exception as e:
+        ts = datetime.datetime.now()
+        exception_message = str(e.args[0])
+        error_message = f'Error processing station: {station}: {exception_message}'
+        print(error_message)
+        log = {
+            'Processing log': {
+                'Station':station,
+                'Timestamp':ts.strftime('%Y-%m-%d %H:%M:%S'),
+                'Error message':error_message
+            }
+        }
+        with open(f'dataset/{station}/{station}_log.txt', 'w') as file:
+            json.dump(log, file)

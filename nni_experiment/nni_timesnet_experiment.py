@@ -80,12 +80,12 @@ def exec_process(station:str, use_du:bool = False):
         'e_layers': 3, 
         'd_model': 128, 
         'd_ff': 128, 
-        'dropout': 0.3, 
+        'dropout': 0.5, 
         'top_k': 3, 
         'num_kernels': 6, 
         'verbose': 2, 
         'random_state': 42, 
-        'percentile': 99, 
+        'percentile': 99.7, 
         'patience': 3, 
         'delta': 1e-7
     }
@@ -107,4 +107,4 @@ def exec_process(station:str, use_du:bool = False):
     nni.report_final_result(f1)
 
 if __name__ == '__main__':
-    exec_process('BRAZ', False)
+    exec_process('CEFT', False)
