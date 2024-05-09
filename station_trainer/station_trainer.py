@@ -2,8 +2,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 import sklearn
-import pandas as pd
-import numpy as np
+import torch
 from sklearn.preprocessing import MinMaxScaler
 import json
 import time
@@ -49,7 +48,6 @@ class StationTrainer():
             'batch_size': 128, 
             'epoch_steps': -1, 
             'prt_steps': 1, 
-            'device': 'mps', 
             'pred_len': 0, 
             'e_layers': 3, 
             'd_model': 64, 
@@ -63,6 +61,7 @@ class StationTrainer():
             'patience': 3, 
             'delta': 1e-7
         }
+        if torch.backends.mps.is_available(): params['device']='mps'
         return params
     
     def train(self) -> tuple[np.array, np.array, np.array]:
