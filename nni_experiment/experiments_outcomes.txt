@@ -135,7 +135,7 @@ best = {
 }
 
 CEFT Experiment--------------------------------
-[2024-05-08 12:27:14] Creating experiment, Experiment ID: cqn9lf3u
+[2024-05-08 12:27:14] Creating experiment, Experiment ID: cqn9lf3u (f1 = 75%)
 best = {
     "e_layers": 3,
     "d_model": 128,
@@ -157,3 +157,82 @@ searchSpace:
     _value: [99, 99.9, 0.1]
 
 BRAZ Experiment------------------------------
+[2024-05-08 14:02:38] Creating experiment, Experiment ID: a7fkx9in (f1 = 57.14%)
+best = {
+    "dropout": 0.15,
+    "top_k": 5, 3
+    "percentile": 99.5
+}
+
+CHEC Experiment-----------------------------
+[2024-05-08 15:25:38] Creating experiment, Experiment ID: z71woc4t (f1 = 66.67%)
+best = {
+    "dropout": 0.2, 0.3, 0.45, 0.45, 0.5, 0.4, 0.4, 0.35
+    "top_k": 3,
+    "percentile": 99.1, 99.1, 99.1, 99, 99.1, 99.1, 99, 99
+}
+
+New way to perform HPO (minimize MSE)
+searchSpace:
+  seq_len:
+    _type: choice
+    _value: [10, 20]
+  e_layers:
+    _type: choice
+    _value: [2, 3]
+  d_model:
+    _type: choice
+    _value: [32, 64, 128]
+  d_ff:
+    _type: choice
+    _value: [32, 64, 128]
+  top_k:
+    _type: choice
+    _value: [3, 5]
+  dropout:
+    _type: quniform
+    _value: [0.1, 0.5, 0.05]
+
+CHEC Experiment------------------
+[2024-05-08 20:25:54] Creating experiment, Experiment ID: yck5w0bo (MSE = 0.007767)
+best = {
+    "seq_len": 10,
+    "e_layers": 2,
+    "d_model": 32,
+    "d_ff": 128,
+    "top_k": 3,
+    "dropout": 0.15
+}
+
+With gps_week (the model focused heavily on the absence of data)
+[2024-05-08 22:40:03] Creating experiment, Experiment ID: tn8rwhpd (MSE = 0.010220)
+best = {
+    "seq_len": 10,
+    "e_layers": 3,
+    "d_model": 64,
+    "d_ff": 32,
+    "top_k": 3,
+    "dropout": 0.15, 0.20
+}
+
+BRAZ Experiment----------------
+[2024-05-08 19:17:20] Creating experiment, Experiment ID: i1st5lgk (MSE = 0.005049)
+best = {
+    "seq_len": 10,
+    "e_layers": 3,
+    "d_model": 128,
+    "d_ff": 32,
+    "top_k": 5,
+    "dropout": 0.35
+}
+
+with gps_week (the model focused heavily on the absence of data)
+[2024-05-08 22:57:25] Creating experiment, Experiment ID: d95hiyq2 (MSE = 0.005543)
+best = {
+    "seq_len": 10,
+    "e_layers": 2,
+    "d_model": 128,
+    "d_ff": 64,
+    "top_k": 5,
+    "dropout": 0.25
+}

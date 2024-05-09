@@ -26,6 +26,7 @@ def read_stations_file(stations_file:str) -> list:
 def process_stations(stations:list):
     total_truth = []
     total_pred = []
+    total_scores = []
     start = time.time()
     for station in (pbar := tqdm.tqdm(stations)):
         try:
@@ -37,7 +38,8 @@ def process_stations(stations:list):
 
             scores, truth, pred, metrics = station_trainer.train()
             if (scores is not None) and (truth is not None) and (pred is not None) and (metrics is not None):
-                # Gathering station truth and pred for stacking
+                # Gathering station scores, truth and pred for stacking
+                total_scores.append(scores)
                 total_truth.append(truth)
                 total_pred.append(pred)
 
@@ -67,7 +69,8 @@ def process_stations(stations:list):
     # Elapsed time
     elapsed_time = end - start
 
-    # Stacking truth and pred
+    # Stacking scores, truth and pred
+    stacked_scores = np.hstack([*total_scores])
     stacked_truth = np.hstack([*total_truth])
     stacked_pred = np.hstack([*total_pred])
 
@@ -75,11 +78,15 @@ def process_stations(stations:list):
     precision, recall, f1_score, support = sklearn.metrics.precision_recall_fscore_support(stacked_pred, stacked_truth)
     accuracy = sklearn.metrics.accuracy_score(stacked_pred, stacked_truth)
     f1 = sklearn.metrics.f1_score(stacked_pred, stacked_truth)
+
+    # Calculating global MSE
+    mse = np.mean((stacked_scores - stacked_truth) ** 2)
     
     print(f"Global Accuracy: {accuracy}")
     print(f"Global Precision: {precision}")
     print(f"Global Recall: {recall}")
     print(f"Global F1 score: {f1}")
+    print(f"Global MSE score: {mse}")
     print(f"Processing time: {elapsed_time:.2f} seconds")
 
     metrics = {
@@ -88,6 +95,7 @@ def process_stations(stations:list):
         'Precision':np.array2string(precision, precision=2, separator=','),
         'Recall':np.array2string(recall, precision=2, separator=','),
         'F1':f1,
+        'MSE':mse,
         'Processing Time:':f'{elapsed_time:.2f} seconds'
     }
 

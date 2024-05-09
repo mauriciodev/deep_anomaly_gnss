@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import logging
 import os
+from sklearn.preprocessing import MinMaxScaler
 
 # Importing our custom TimesNet with Convergence Early Stop
 import sys
@@ -34,6 +35,8 @@ def train(station:str, params: dict, gnss_data_path: str, gnss_label_path:str, u
     
     # Getting scores
     scores = model.decision_function(training_data)
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    scores = scaler.fit_transform(scores.reshape(-1, 1)).flatten()     
 
     # Calculating predictions based on a percentile
     threshold = np.percentile(scores, params['percentile'])
@@ -44,13 +47,17 @@ def train(station:str, params: dict, gnss_data_path: str, gnss_label_path:str, u
     precision, recall, f1_score, support = sklearn.metrics.precision_recall_fscore_support(pred, truth)
     accuracy = sklearn.metrics.accuracy_score(pred, truth)
     f1 = sklearn.metrics.f1_score(pred, truth)
+
+    # Calculating MSE
+    mse = np.mean((scores - truth) ** 2)
     
     print(f"Accuracy {accuracy}")
     print(f"Precision {precision}")
     print(f"Recall {recall}")
     print(f"F1 score {f1}")
+    print(f"MSE {mse}")
 
-    return f1
+    return mse
 
 def check_station_data(filepath:str) -> bool:
     if os.path.exists(filepath):
@@ -80,12 +87,12 @@ def exec_process(station:str, use_du:bool = False):
         'e_layers': 3, 
         'd_model': 128, 
         'd_ff': 128, 
-        'dropout': 0.5, 
-        'top_k': 3, 
+        'dropout': 0.45, 
+        'top_k': 5, 
         'num_kernels': 6, 
         'verbose': 2, 
         'random_state': 42, 
-        'percentile': 99.7, 
+        'percentile': 99.0, 
         'patience': 3, 
         'delta': 1e-7
     }
@@ -107,4 +114,4 @@ def exec_process(station:str, use_du:bool = False):
     nni.report_final_result(f1)
 
 if __name__ == '__main__':
-    exec_process('CEFT', False)
+    exec_process('CHEC', False)

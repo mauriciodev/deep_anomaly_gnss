@@ -26,6 +26,9 @@ class StationTrainer():
         self.metrics_path = f'dataset/{station}/{station}_metrics.txt'
 
         self.gnss_data, self.gnss_label = self.get_data(self.gnss_data_path, self.gnss_label_path)
+
+    def get_quakes(self):
+        return pd.read_csv('dataset/quakes.csv')
         
     def get_data(self, gnss_data_path: str, gnss_label_path:str) -> tuple[pd.DataFrame, pd.DataFrame]:
         try:
@@ -49,9 +52,9 @@ class StationTrainer():
             'device': 'mps', 
             'pred_len': 0, 
             'e_layers': 3, 
-            'd_model': 128, 
+            'd_model': 64, 
             'd_ff': 128, 
-            'dropout': 0.45, 
+            'dropout': 0.3, 
             'top_k': 5, 
             'num_kernels': 6, 
             'verbose': 2, 
@@ -104,11 +107,15 @@ class StationTrainer():
         precision, recall, f1_score, support = sklearn.metrics.precision_recall_fscore_support(pred, truth)
         accuracy = sklearn.metrics.accuracy_score(pred, truth)
         f1 = sklearn.metrics.f1_score(pred, truth)
+
+        # Calculating MSE
+        mse = np.mean((scores - truth) ** 2)
         
         print(f"Accuracy {accuracy}")
         print(f"Precision {precision}")
         print(f"Recall {recall}")
         print(f"F1 score {f1}")
+        print(f"MSE {mse}")
         print(f"Elapsed time: {elapsed_time:.2f} seconds")
 
         metrics = {
@@ -117,6 +124,7 @@ class StationTrainer():
             'Precision':np.array2string(precision, precision=2, separator=', '),
             'Recall':np.array2string(recall, precision=2, separator=', '),
             'F1':f1,
+            'MSE':mse,
             'Processing Time:':f'{elapsed_time:.2f} seconds'
         }
 
@@ -142,6 +150,13 @@ class StationTrainer():
         predictions = self.gnss_label[self.gnss_label.pred == 1]
         ax1.vlines(predictions.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'red', alpha=0.5, label='Prediction')
 
+        # Plotting quakes
+        """     
+        quakes = self.get_quakes()
+        quakes = quakes[quakes.mag >= 3.0]
+        quakes = quakes[quakes.gps_week.isin(predictions.gps_week)]
+        ax1.vlines(quakes.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'purple', alpha=0.5, label='Quakes >= 4.0')
+        """
         # Create the secondary y-axis (twinx)
         ax2 = ax1.twinx()
 
@@ -168,7 +183,7 @@ class StationTrainer():
             json.dump(metrics, result)        
 
 if __name__ == '__main__':
-    station = 'BRAZ'
+    station = 'CHEC'
     station_trainer = StationTrainer(station=station, use_du=False)
 
     try:
