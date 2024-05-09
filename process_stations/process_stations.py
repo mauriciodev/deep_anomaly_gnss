@@ -115,5 +115,5 @@ if __name__ == '__main__':
     stations = read_stations_file(stations_filepath)
     # Sample stations to check the code
     #stations = ['BRAZ', 'CHEC']
-    file_name = (Path(stations_filepath).stem)+'_global_metrics.txt'
+    file_name = (Path(stations_filepath).stem)+'_global_metrics.json'
     process_stations(stations=stations, output_file=f'dataset/{file_name}')

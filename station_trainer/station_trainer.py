@@ -22,7 +22,7 @@ class StationTrainer():
         self.gnss_data_path = f'dataset/{station}/{station}_NEU_train.csv'
         self.gnss_label_path = f'dataset/{station}/{station}_NEU_test_label.csv'
         self.png_path = f'dataset/{station}/{station}_trained.png'
-        self.metrics_path = f'dataset/{station}/{station}_metrics.txt'
+        self.metrics_path = f'dataset/{station}/{station}_metrics.json'
 
         self.gnss_data, self.gnss_label = self.get_data(self.gnss_data_path, self.gnss_label_path)
 
@@ -204,5 +204,5 @@ if __name__ == '__main__':
                 'Error message':error_message
             }
         }
-        with open(f'dataset/{station}/{station}_log.txt', 'w') as file:
+        with open(f'dataset/{station}/{station}_log.json', 'w') as file:
             json.dump(log, file)
