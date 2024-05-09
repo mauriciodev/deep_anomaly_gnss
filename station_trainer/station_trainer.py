@@ -50,8 +50,8 @@ class StationTrainer():
             'pred_len': 0, 
             'e_layers': 3, 
             'd_model': 128, 
-            'd_ff': 128, 
-            'dropout': 0.45, 
+            'd_ff': 32, 
+            'dropout': 0.35, 
             'top_k': 5, 
             'num_kernels': 6, 
             'verbose': 2, 
@@ -104,11 +104,15 @@ class StationTrainer():
         precision, recall, f1_score, support = sklearn.metrics.precision_recall_fscore_support(pred, truth)
         accuracy = sklearn.metrics.accuracy_score(pred, truth)
         f1 = sklearn.metrics.f1_score(pred, truth)
+
+        # Calculating MSE
+        mse = np.mean((scores - truth) ** 2)
         
         print(f"Accuracy {accuracy}")
         print(f"Precision {precision}")
         print(f"Recall {recall}")
         print(f"F1 score {f1}")
+        print(f"MSE {mse}")
         print(f"Elapsed time: {elapsed_time:.2f} seconds")
 
         metrics = {
