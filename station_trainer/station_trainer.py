@@ -143,11 +143,13 @@ class StationTrainer():
         self.gnss_label['pred'] = pred
         # Plotting anomalies
         anomalies = self.gnss_label[self.gnss_label.label == 1]
-        ax1.vlines(anomalies.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'black', linestyle='dashed', alpha=0.5, label='Descontinuity')
+        if not anomalies.empty:
+            ax1.vlines(anomalies.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'black', linestyle='dashed', alpha=0.5, label='Descontinuity')
 
         # Plotting predictions
         predictions = self.gnss_label[self.gnss_label.pred == 1]
-        ax1.vlines(predictions.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'red', alpha=0.5, label='Prediction')
+        if not predictions.empty:
+            ax1.vlines(predictions.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'red', alpha=0.5, label='Prediction')
 
         # Plotting quakes
         """     
