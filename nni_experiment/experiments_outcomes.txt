@@ -194,16 +194,6 @@ searchSpace:
     _value: [0.1, 0.5, 0.05]
 
 CHEC Experiment------------------
-[2024-05-08 18:56:58] Creating experiment, Experiment ID: nlc8qdu9 (MSE = 0.008033)
-best = {
-    "seq_len": 10,
-    "e_layers": 2,
-    "d_model": 32,
-    "d_ff": 128,
-    "top_k": 5,
-    "dropout": 0.45
-}
-
 [2024-05-08 20:25:54] Creating experiment, Experiment ID: yck5w0bo (MSE = 0.007767)
 best = {
     "seq_len": 10,
@@ -212,6 +202,17 @@ best = {
     "d_ff": 128,
     "top_k": 3,
     "dropout": 0.15
+}
+
+With gps_week (the model focused heavily on the absence of data)
+[2024-05-08 22:40:03] Creating experiment, Experiment ID: tn8rwhpd (MSE = 0.010220)
+best = {
+    "seq_len": 10,
+    "e_layers": 3,
+    "d_model": 64,
+    "d_ff": 32,
+    "top_k": 3,
+    "dropout": 0.15, 0.20
 }
 
 BRAZ Experiment----------------
@@ -223,4 +224,15 @@ best = {
     "d_ff": 32,
     "top_k": 5,
     "dropout": 0.35
+}
+
+with gps_week (the model focused heavily on the absence of data)
+[2024-05-08 22:57:25] Creating experiment, Experiment ID: d95hiyq2 (MSE = 0.005543)
+best = {
+    "seq_len": 10,
+    "e_layers": 2,
+    "d_model": 128,
+    "d_ff": 64,
+    "top_k": 5,
+    "dropout": 0.25
 }
