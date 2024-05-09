@@ -5,7 +5,7 @@ import json
 import tqdm
 import datetime
 import argparse
-
+from pathlib import Path
 import sys
 sys.path.append('.')
 from station_trainer.station_trainer import StationTrainer
@@ -23,7 +23,7 @@ def read_stations_file(stations_file:str) -> list:
         print(f"Error reading file '{stations_file}': {e}")
         return []
         
-def process_stations(stations:list):
+def process_stations(stations:list, output_file:str):
     total_truth = []
     total_pred = []
     total_scores = []
@@ -100,7 +100,7 @@ def process_stations(stations:list):
     }
 
     # Saving the global metrics file
-    with open('dataset/global_metrics.txt', 'w') as result:
+    with open(output_file, 'w') as result:
         json.dump(metrics, result)
 
 if __name__ == '__main__':
@@ -115,5 +115,5 @@ if __name__ == '__main__':
     stations = read_stations_file(stations_filepath)
     # Sample stations to check the code
     #stations = ['BRAZ', 'CHEC']
-
-    process_stations(stations=stations)
+    file_name = (Path(stations_filepath).stem)+'_global_metrics.txt'
+    process_stations(stations=stations, output_file=f'dataset/{file_name}')
