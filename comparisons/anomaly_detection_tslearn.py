@@ -1,9 +1,11 @@
 import pandas as pd
-from tslearn.svm import TimeSeriesSVC
 import numpy as np
 from matplotlib import pyplot as plt
 import time
 from sklearn.preprocessing import MinMaxScaler
+
+# TSlearn imports
+from tslearn.svm import TimeSeriesSVC
 
 class TSlearnTrainer():
     def __init__(self, model, station:str, use_du:bool) -> None:
