@@ -37,14 +37,24 @@ class TSlearnTrainer():
         self.model.fit(training_data, label_data)
         end = time.time()
 
-        # Elapsed time
-        elapsed_time = end - start
+        # Elapsed fit time
+        fit_time = end - start
 
+        # Decision score
+        start = time.time()
         scores = self.model.decision_function(training_data)
+        end = time.time()
+
+        # Elapsed score time
+        score_time = end - start
+
         scaler = MinMaxScaler(feature_range=(0, 1))
         scores = scaler.fit_transform(scores.reshape(-1, 1)).flatten()
 
-        print(f"Elapsed time: {elapsed_time:.2f} seconds")
+        scores = scores[:len(self.gnss_data.gps_week)]
+
+        print(f"Elapsed time to fit: {fit_time:.2f} seconds")
+        print(f"Elapsed time to score: {score_time:.2f} seconds")
         print(f"Scores shape: {scores.shape}")
 
         return scores
