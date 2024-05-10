@@ -1,8 +1,26 @@
 import pandas as pd
 from matplotlib import pyplot as plt
-from darts import TimeSeries
-from darts.ad import KMeansScorer
 from sklearn.preprocessing import MinMaxScaler
+
+from darts import TimeSeries
+from darts.ad import (
+    CauchyNLLScorer,
+    DifferenceScorer,
+    ExponentialNLLScorer,
+    GammaNLLScorer,
+    GaussianNLLScorer,
+    KMeansScorer,
+    LaplaceNLLScorer,
+    NormScorer,
+    PoissonNLLScorer,
+    PyODScorer,
+    WassersteinScorer,
+)
+
+def run_model(scorer, train):
+    scorer.fit(train)
+    scores = scorer.score(train)
+    return scores.data_array().to_numpy().squeeze()
 
 station = 'BRAZ'
 
@@ -15,10 +33,8 @@ gnss_label = pd.read_csv(gnss_label_path)
 train = TimeSeries.from_dataframe(df=gnss_data, time_col=gnss_data.columns[0], value_cols=gnss_data.columns[1:3], fill_missing_dates=True, freq=1, fillna_value=0.0)
 label = TimeSeries.from_dataframe(df=gnss_label, time_col=gnss_label.columns[0], value_cols=gnss_label.columns[1], fill_missing_dates=True, freq=1, fillna_value=0.0)
 
-scorer = KMeansScorer(k=2, window=1)
-scorer.fit(train)
-scores = scorer.score(train)
-scores = scores.data_array().to_numpy().squeeze()
+scores = run_model( KMeansScorer(k=20, window=1), train)
+#scores = run_model( PyODScorer(window=1), train)
 
 # Scaling scores to 0-1
 scaler = MinMaxScaler(feature_range=(0, 1))
@@ -33,8 +49,8 @@ ax1.plot(train.time_index, train.values()[:, 1], color = 'gold', label = 'Series
 #ax1.plot(train.time_index, train.columns[0], color = 'magenta', label = 'Series DU')
 
 # Plotting anomalies
-#anomalies = gnss_label[gnss_label.label == 1]
-#ax1.vlines(anomalies.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'black', linestyle='dashed', alpha=0.5, label='Descontinuity')
+anomalies = gnss_label[gnss_label.label == 1]
+ax1.vlines(anomalies.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'black', linestyle='dashed', alpha=0.5, label='Descontinuity')
 
 # Plotting predictions
 #predictions = gnss_label[gnss_label.pred == 1]
@@ -44,7 +60,7 @@ ax1.plot(train.time_index, train.values()[:, 1], color = 'gold', label = 'Series
 ax2 = ax1.twinx()
 
 # Plot data3 on the secondary y-axis
-ax2.plot(train.time_index, scores, color='black', linewidth=0.5, label='Scores')
+ax2.plot(train.time_index, scores, color='red', linewidth=0.5, label='Scores')
 
 # Set labels for axes
 ax1.set_xlabel('GPS Week')

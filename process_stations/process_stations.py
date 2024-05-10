@@ -109,7 +109,7 @@ if __name__ == '__main__':
         '-s',
         '-stations',
         help='Station.txt file. A list of 4 digit SIRGAS station codes, separated by comma.',
-        default='dataset/ecuador_stations.txt' # positional argument
+        default='dataset/brazil_stations.txt' # positional argument
     )           
     stations_filepath = parser.parse_args().s
     stations = read_stations_file(stations_filepath)
