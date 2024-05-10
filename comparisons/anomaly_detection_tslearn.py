@@ -6,6 +6,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 # TSlearn imports
 from tslearn.svm import TimeSeriesSVC
+from tslearn.clustering import TimeSeriesKMeans
 
 class TSlearnTrainer():
     def __init__(self, model, station:str, use_du:bool) -> None:
@@ -44,7 +45,7 @@ class TSlearnTrainer():
 
         # Decision score
         start = time.time()
-        scores = self.model.decision_function(training_data)
+        scores = self.model.predict(training_data)
         end = time.time()
 
         # Elapsed score time
@@ -57,7 +58,6 @@ class TSlearnTrainer():
 
         print(f"Elapsed time to fit: {fit_time:.2f} seconds")
         print(f"Elapsed time to score: {score_time:.2f} seconds")
-        print(f"Scores shape: {scores.shape}")
 
         return scores
     
@@ -109,7 +109,8 @@ class TSlearnTrainer():
 
 if __name__ == '__main__':
     station = 'BRAZ'
-    model = TimeSeriesSVC()    
+    #model = TimeSeriesSVC()
+    model = TimeSeriesKMeans(n_clusters=20)
     trainer = TSlearnTrainer(model=model, station=station, use_du=False)
     scores = trainer.train()
 
