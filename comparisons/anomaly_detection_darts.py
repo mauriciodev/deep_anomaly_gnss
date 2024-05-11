@@ -154,7 +154,7 @@ if __name__ == '__main__':
     station = 'BRAZ'
 
     filtering_model_names = ['GaussianProcessFilter', 'KalmanFilter','MovingAverageFilter']
-    filtering_model_name = filtering_model_names[2]
+    filtering_model_name = filtering_model_names[0]
 
     # Instatiate of a filtering model
     if filtering_model_name == 'GaussianProcessFilter':
