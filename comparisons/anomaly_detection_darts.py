@@ -6,7 +6,6 @@ import numpy as np
 
 # darts imports
 from darts import TimeSeries
-from darts.metrics import mse as MSE
 from darts.models import (
     GaussianProcessFilter,
     KalmanFilter,
@@ -20,9 +19,10 @@ from darts.ad.scorers import (
 from darts.ad.anomaly_model.filtering_am import FilteringAnomalyModel
 
 class DartsTrainer():
-    def __init__(self, model, scorers, station:str, use_du:bool) -> None:
+    def __init__(self, filtering_model_name, model, scorers, station:str, use_du:bool) -> None:
         self.station = station
         self.use_du = use_du
+        self.filtering_model_name = filtering_model_name
 
         # Defining station filepaths
         self.gnss_data_path = f'dataset/{station}/{station}_NEU_train.csv'
@@ -44,7 +44,8 @@ class DartsTrainer():
 
         # Training
         start = time.time()
-        self.anomaly_model.fit(self.train)
+        allow_model_training = True if self.filtering_model_name == 'KalmanFilter' else False
+        self.anomaly_model.fit(self.train, allow_model_training=allow_model_training)
         end = time.time()
 
         # Elapsed fit time
@@ -58,12 +59,18 @@ class DartsTrainer():
         # Elapsed score time
         score_time = end - start
 
-        scores = scores[0].data_array().to_numpy().squeeze()
+        # Transforming the scores into a numpy array
+        scores = scores[0].data_array().to_numpy()
+        # DifferenceScorer return an anomaly for each component in axis 1
+        scores = np.mean(scores, axis=1)
+        scores = scores.squeeze()
+        # Scaling
         scaler = MinMaxScaler(feature_range=(0, 1))
         scores = scaler.fit_transform(scores.reshape(-1, 1)).flatten()
 
         # MSE
-        mse = MSE(self.train, pred)
+        truth = self.label.data_array().to_numpy().squeeze()
+        mse = np.mean((scores - truth) ** 2)
 
         print(f"Elapsed time to fit: {fit_time:.2f} seconds")
         print(f"Elapsed time to score: {score_time:.2f} seconds")
@@ -164,6 +171,7 @@ if __name__ == '__main__':
     ]
     
     trainer = DartsTrainer(
+        filtering_model_name=filtering_model_name,
         model=filtering_model,
         scorers=scorers,
         station=station,
