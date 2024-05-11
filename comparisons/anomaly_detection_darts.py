@@ -6,16 +6,23 @@ import numpy as np
 
 # darts imports
 from darts import TimeSeries
-from darts.metrics import mae, rmse
-from darts.models import MovingAverageFilter
-from darts.ad.scorers import NormScorer, KMeansScorer
+from darts.metrics import mse as MSE
+from darts.models import (
+    GaussianProcessFilter,
+    KalmanFilter,
+    MovingAverageFilter,
+)
+from darts.ad.scorers import (
+    NormScorer, 
+    KMeansScorer,
+    DifferenceScorer,
+)
 from darts.ad.anomaly_model.filtering_am import FilteringAnomalyModel
 
 class DartsTrainer():
-    def __init__(self, model, scorers, period, station:str, use_du:bool) -> None:
+    def __init__(self, model, scorers, station:str, use_du:bool) -> None:
         self.station = station
         self.use_du = use_du
-        self.period = period
 
         # Defining station filepaths
         self.gnss_data_path = f'dataset/{station}/{station}_NEU_train.csv'
@@ -45,7 +52,7 @@ class DartsTrainer():
 
         # Decision score
         start = time.time()
-        scores = self.anomaly_model.score(self.train)
+        scores, pred = self.anomaly_model.score(self.train, return_model_prediction=True)
         end = time.time()
 
         # Elapsed score time
@@ -55,10 +62,14 @@ class DartsTrainer():
         scaler = MinMaxScaler(feature_range=(0, 1))
         scores = scaler.fit_transform(scores.reshape(-1, 1)).flatten()
 
+        # MSE
+        mse = MSE(self.train, pred)
+
         print(f"Elapsed time to fit: {fit_time:.2f} seconds")
         print(f"Elapsed time to score: {score_time:.2f} seconds")
+        print(f'MSE: {mse}')
 
-        return scores
+        return scores, pred
     
     def define_train_label(self):
         if self.use_du:
@@ -80,7 +91,7 @@ class DartsTrainer():
             value_cols=self.gnss_label.columns[1], 
             fill_missing_dates=True, 
             freq=1, 
-            fillna_value=0.0,
+            fillna_value=1.0,
             )
     
     def get_data(self, gnss_data_path: str, gnss_label_path:str) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -92,7 +103,7 @@ class DartsTrainer():
 
         return gnss_data, gnss_label    
 
-    def plot_experiment(self, scores:np.array) -> None:
+    def plot_experiment(self, scores:np.array, pred) -> None:
         plt.clf()
 
         # Create the figure and primary y-axis
@@ -101,6 +112,10 @@ class DartsTrainer():
         # Plot GNSS data on the primary y-axis
         ax1.plot(self.train.time_index, self.train.values()[:, 0], color = 'cornflowerblue', label = 'Series DN')
         ax1.plot(self.train.time_index, self.train.values()[:, 1], color = 'gold', label = 'Series DE')
+
+        # Plot predictions
+        ax1.plot(self.train.time_index, pred.values()[:, 0], color = 'cornflowerblue', linestyle='dotted', label = 'Pred DN')
+        ax1.plot(self.train.time_index, pred.values()[:, 1], color = 'gold', linestyle='dotted', label = 'Pred DE')
 
         # Plotting anomalies
         anomalies = self.gnss_label[self.gnss_label.label == 1]
@@ -129,25 +144,32 @@ class DartsTrainer():
         plt.savefig(self.png_path, format='png')
 
 if __name__ == '__main__':
-    station = 'CHEC'
+    station = 'BRAZ'
 
-    # Instatiate of a forecasting model - e.g. RegressionModel with a defined 
-    period = 1
-    forecasting_model = MovingAverageFilter(window=10)
+    filtering_model_names = ['GaussianProcessFilter', 'KalmanFilter','MovingAverageFilter']
+    filtering_model_name = filtering_model_names[2]
+
+    # Instatiate of a filtering model
+    if filtering_model_name == 'GaussianProcessFilter':
+        filtering_model = GaussianProcessFilter()
+    elif filtering_model_name == 'KalmanFilter':
+        filtering_model = KalmanFilter()
+    else:
+        filtering_model = MovingAverageFilter(window=10)
 
     scorers = [
         NormScorer(ord=1),
-        KMeansScorer(k=50, window=period, component_wise=False),
+        KMeansScorer(k=50),
+        DifferenceScorer(),
     ]
     
     trainer = DartsTrainer(
-        model=forecasting_model,
+        model=filtering_model,
         scorers=scorers,
-        period=period,
         station=station,
         use_du=False,
     )
 
-    scores = trainer.train()
+    scores, pred = trainer.train()
 
-    trainer.plot_experiment(scores)
+    trainer.plot_experiment(scores, pred)
