@@ -37,7 +37,7 @@ class TSlearnTrainer():
 
         # Training
         start = time.time()
-        self.model.fit(training_data, label_data)
+        self.model.fit(training_data)
         end = time.time()
 
         # Elapsed fit time

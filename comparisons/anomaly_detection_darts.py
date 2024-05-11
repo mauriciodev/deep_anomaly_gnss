@@ -1,78 +1,153 @@
 import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
+import time
+import numpy as np
 
+# darts imports
 from darts import TimeSeries
-from darts.ad import (
-    CauchyNLLScorer,
-    DifferenceScorer,
-    ExponentialNLLScorer,
-    GammaNLLScorer,
-    GaussianNLLScorer,
-    KMeansScorer,
-    LaplaceNLLScorer,
-    NormScorer,
-    PoissonNLLScorer,
-    PyODScorer,
-    WassersteinScorer,
-)
+from darts.metrics import mae, rmse
+from darts.models import MovingAverageFilter
+from darts.ad.scorers import NormScorer, KMeansScorer
+from darts.ad.anomaly_model.filtering_am import FilteringAnomalyModel
 
-def run_model(scorer, train):
-    scorer.fit(train)
-    scores = scorer.score(train)
-    return scores.data_array().to_numpy().squeeze()
+class DartsTrainer():
+    def __init__(self, model, scorers, period, station:str, use_du:bool) -> None:
+        self.station = station
+        self.use_du = use_du
+        self.period = period
 
-station = 'BRAZ'
+        # Defining station filepaths
+        self.gnss_data_path = f'dataset/{station}/{station}_NEU_train.csv'
+        self.gnss_label_path = f'dataset/{station}/{station}_NEU_test_label.csv'
+        self.png_path = f'dataset/{station}/{station}_trained_darts.png'
+        self.metrics_path = f'dataset/{station}/{station}_metrics_darts.json'
 
-gnss_data_path = f'dataset/{station}/{station}_NEU_train.csv'
-gnss_label_path = f'dataset/{station}/{station}_NEU_test_label.csv'
+        # Getting the data
+        self.gnss_data, self.gnss_label = self.get_data(self.gnss_data_path, self.gnss_label_path)
 
-gnss_data = pd.read_csv(gnss_data_path)
-gnss_label = pd.read_csv(gnss_label_path)
+        # Instantiate the anomaly model with: one forecasting model, and one or more scorers (and corresponding parameters)
+        self.anomaly_model = FilteringAnomalyModel(
+            model=model,
+            scorer=scorers,
+        )
 
-train = TimeSeries.from_dataframe(df=gnss_data, time_col=gnss_data.columns[0], value_cols=gnss_data.columns[1:3], fill_missing_dates=True, freq=1, fillna_value=0.0)
-label = TimeSeries.from_dataframe(df=gnss_label, time_col=gnss_label.columns[0], value_cols=gnss_label.columns[1], fill_missing_dates=True, freq=1, fillna_value=0.0)
+    def train(self):
+        self.define_train_label()
 
-scores = run_model( KMeansScorer(k=20, window=1), train)
-#scores = run_model( PyODScorer(window=1), train)
+        # Training
+        start = time.time()
+        self.anomaly_model.fit(self.train)
+        end = time.time()
 
-# Scaling scores to 0-1
-scaler = MinMaxScaler(feature_range=(0, 1))
-scores = scaler.fit_transform(scores.reshape(-1, 1)).flatten()
+        # Elapsed fit time
+        fit_time = end - start
 
-# Create the figure and primary y-axis
-fig, ax1 = plt.subplots()
+        # Decision score
+        start = time.time()
+        scores = self.anomaly_model.score(self.train)
+        end = time.time()
 
-# Plot GNSS data on the primary y-axis
-ax1.plot(train.time_index, train.values()[:, 0], color = 'cornflowerblue', label = 'Series DN')
-ax1.plot(train.time_index, train.values()[:, 1], color = 'gold', label = 'Series DE')
-#ax1.plot(train.time_index, train.columns[0], color = 'magenta', label = 'Series DU')
+        # Elapsed score time
+        score_time = end - start
 
-# Plotting anomalies
-anomalies = gnss_label[gnss_label.label == 1]
-ax1.vlines(anomalies.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'black', linestyle='dashed', alpha=0.5, label='Descontinuity')
+        scores = scores[0].data_array().to_numpy().squeeze()
+        scaler = MinMaxScaler(feature_range=(0, 1))
+        scores = scaler.fit_transform(scores.reshape(-1, 1)).flatten()
 
-# Plotting predictions
-#predictions = gnss_label[gnss_label.pred == 1]
-#ax1.vlines(predictions.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'red', alpha=0.5, label='Prediction')
+        print(f"Elapsed time to fit: {fit_time:.2f} seconds")
+        print(f"Elapsed time to score: {score_time:.2f} seconds")
 
-# Create the secondary y-axis (twinx)
-ax2 = ax1.twinx()
+        return scores
+    
+    def define_train_label(self):
+        if self.use_du:
+            i = 4
+        else:
+            i = 3
+        
+        self.train = TimeSeries.from_dataframe(
+            df=self.gnss_data, 
+            time_col=self.gnss_data.columns[0], 
+            value_cols=self.gnss_data.columns[1:i], 
+            fill_missing_dates=True, 
+            freq=1, 
+            fillna_value=0.0,
+            )
+        self.label = TimeSeries.from_dataframe(
+            df=self.gnss_label, 
+            time_col=self.gnss_label.columns[0], 
+            value_cols=self.gnss_label.columns[1], 
+            fill_missing_dates=True, 
+            freq=1, 
+            fillna_value=0.0,
+            )
+    
+    def get_data(self, gnss_data_path: str, gnss_label_path:str) -> tuple[pd.DataFrame, pd.DataFrame]:
+        try:
+            gnss_data = pd.read_csv(gnss_data_path)
+            gnss_label = pd.read_csv(gnss_label_path)
+        except:
+            gnss_data, gnss_label = pd.DataFrame(), pd.DataFrame()
 
-# Plot data3 on the secondary y-axis
-ax2.plot(train.time_index, scores, color='red', linewidth=0.5, label='Scores')
+        return gnss_data, gnss_label    
 
-# Set labels for axes
-ax1.set_xlabel('GPS Week')
-ax1.set_ylabel('Deviation in meters (m)')
-ax2.set_ylabel('Normalized Score [0-1]')
+    def plot_experiment(self, scores:np.array) -> None:
+        plt.clf()
 
-# Add legend using all lines
-# ask matplotlib for the plotted objects and their labels
-lines, labels = ax1.get_legend_handles_labels()
-lines2, labels2 = ax2.get_legend_handles_labels()
-ax2.legend(lines + lines2, labels + labels2, loc=0)
+        # Create the figure and primary y-axis
+        fig, ax1 = plt.subplots()
 
-# Save the plot
-plt.title(f'Station: {station}', loc='center')
-plt.show()
+        # Plot GNSS data on the primary y-axis
+        ax1.plot(self.train.time_index, self.train.values()[:, 0], color = 'cornflowerblue', label = 'Series DN')
+        ax1.plot(self.train.time_index, self.train.values()[:, 1], color = 'gold', label = 'Series DE')
+
+        # Plotting anomalies
+        anomalies = self.gnss_label[self.gnss_label.label == 1]
+        if not anomalies.empty:
+            ax1.vlines(anomalies.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'black', linestyle='dashed', alpha=0.5, label='Descontinuity')
+
+        # Create the secondary y-axis (twinx)
+        ax2 = ax1.twinx()
+
+        # Plot data3 on the secondary y-axis
+        ax2.plot(self.train.time_index, scores, color='red', linewidth=0.5, label='Scores')
+
+        # Set labels for axes
+        ax1.set_xlabel('GPS Week')
+        ax1.set_ylabel('Deviation in meters (m)')
+        ax2.set_ylabel('Normalized Score [0-1]')
+
+        # Add legend using all lines
+        # ask matplotlib for the plotted objects and their labels
+        lines, labels = ax1.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax2.legend(lines + lines2, labels + labels2, loc=0)
+
+        # Save the plot
+        plt.title(f'Station: {self.station}', loc='center')
+        plt.savefig(self.png_path, format='png')
+
+if __name__ == '__main__':
+    station = 'CHEC'
+
+    # Instatiate of a forecasting model - e.g. RegressionModel with a defined 
+    period = 1
+    forecasting_model = MovingAverageFilter(window=10)
+
+    scorers = [
+        NormScorer(ord=1),
+        KMeansScorer(k=50, window=period, component_wise=False),
+    ]
+    
+    trainer = DartsTrainer(
+        model=forecasting_model,
+        scorers=scorers,
+        period=period,
+        station=station,
+        use_du=False,
+    )
+
+    scores = trainer.train()
+
+    trainer.plot_experiment(scores)
