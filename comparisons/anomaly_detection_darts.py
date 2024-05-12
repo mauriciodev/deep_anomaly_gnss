@@ -3,6 +3,9 @@ from matplotlib import pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 import time
 import numpy as np
+import sklearn
+import datetime
+import json
 
 # darts imports
 from darts import TimeSeries
@@ -40,6 +43,10 @@ class DartsTrainer():
         )
 
     def train(self):
+        # Return None in case we don't have data
+        if self.gnss_data.empty or  self.gnss_label.empty:
+            return None, None, None, None
+
         self.define_train_label()
 
         # Training
@@ -53,30 +60,63 @@ class DartsTrainer():
 
         # Decision score
         start = time.time()
-        scores, pred = self.anomaly_model.score(self.train, return_model_prediction=True)
+        scores = self.anomaly_model.score(self.train)
         end = time.time()
 
         # Elapsed score time
         score_time = end - start
 
-        # Transforming the scores into a numpy array
-        scores = scores[0].data_array().to_numpy()
-        # DifferenceScorer return an anomaly for each component in axis 1
+        # Scorer index
+        score_index = 0
+
+        # Transforming the scores into a numpy array 
+        scores = scores[score_index].data_array().to_numpy()
+
+        # DifferenceScorer return an anomaly for each component in axis 1. Calculating the mean
         scores = np.mean(scores, axis=1)
         scores = scores.squeeze()
+
         # Scaling
         scaler = MinMaxScaler(feature_range=(0, 1))
         scores = scaler.fit_transform(scores.reshape(-1, 1)).flatten()
 
-        # MSE
+        # Calculating predictions based on a percentile
+        percentile = 99.0
+        threshold = np.percentile(scores, percentile)
+        pred = (scores > threshold).astype('int')
+
+        # Calculationg metrics
         truth = self.label.data_array().to_numpy().squeeze()
-        mse = np.mean((scores - truth) ** 2)
+        precision, recall, f1_score, support = sklearn.metrics.precision_recall_fscore_support(pred, truth)
+        accuracy = sklearn.metrics.accuracy_score(pred, truth)
+        f1 = sklearn.metrics.f1_score(pred, truth)
+
+        # MSE
+        mse = np.mean((scores - pred) ** 2)
+
+        print(f"Accuracy {accuracy}")
+        print(f"Precision {precision}")
+        print(f"Recall {recall}")
+        print(f"F1 score {f1}")
+        print(f"MSE {mse}")
+        print(f"Elapsed fit time: {fit_time:.2f} seconds")
+        print(f"Elapsed score time: {score_time:.2f} seconds")
+
+        metrics = {
+            'Type': 'Station',
+            'Accuracy':accuracy,
+            'Precision':np.array2string(precision, precision=2, separator=', '),
+            'Recall':np.array2string(recall, precision=2, separator=', '),
+            'F1':f1,
+            'MSE':mse,
+            'Processing Time:':f'{fit_time+score_time:.2f} seconds'
+        }
 
         print(f"Elapsed time to fit: {fit_time:.2f} seconds")
         print(f"Elapsed time to score: {score_time:.2f} seconds")
         print(f'MSE: {mse}')
 
-        return scores, pred
+        return scores, truth, pred, metrics
     
     def define_train_label(self):
         if self.use_du:
@@ -120,10 +160,6 @@ class DartsTrainer():
         ax1.plot(self.train.time_index, self.train.values()[:, 0], color = 'cornflowerblue', label = 'Series DN')
         ax1.plot(self.train.time_index, self.train.values()[:, 1], color = 'gold', label = 'Series DE')
 
-        # Plot predictions
-        ax1.plot(self.train.time_index, pred.values()[:, 0], color = 'cornflowerblue', linestyle='dotted', label = 'Pred DN')
-        ax1.plot(self.train.time_index, pred.values()[:, 1], color = 'gold', linestyle='dotted', label = 'Pred DE')
-
         # Plotting anomalies
         anomalies = self.gnss_label[self.gnss_label.label == 1]
         if not anomalies.empty:
@@ -150,11 +186,15 @@ class DartsTrainer():
         plt.title(f'Station: {self.station}', loc='center')
         plt.savefig(self.png_path, format='png')
 
+    def save_metrics(self, metrics):
+        with open(self.metrics_path, 'w') as result:
+            json.dump(metrics, result)
+
 if __name__ == '__main__':
-    station = 'BRAZ'
+    station = 'CEFT'
 
     filtering_model_names = ['GaussianProcessFilter', 'KalmanFilter','MovingAverageFilter']
-    filtering_model_name = filtering_model_names[0]
+    filtering_model_name = filtering_model_names[2]
 
     # Instatiate of a filtering model
     if filtering_model_name == 'GaussianProcessFilter':
@@ -178,6 +218,24 @@ if __name__ == '__main__':
         use_du=False,
     )
 
-    scores, pred = trainer.train()
+    try:
+        scores, truth, pred, metrics = trainer.train()
 
-    trainer.plot_experiment(scores, pred)
+        if (scores is not None) and (truth is not None) and (pred is not None) and (metrics is not None):
+            trainer.plot_experiment(scores=scores, pred=pred)
+
+            trainer.save_metrics(metrics=metrics)
+    except Exception as e:
+        ts = datetime.datetime.now()
+        exception_message = str(e.args[0])
+        error_message = f'Error processing station: {station}: {exception_message}'
+        print(error_message)
+        log = {
+            'Processing log': {
+                'Station':station,
+                'Timestamp':ts.strftime('%Y-%m-%d %H:%M:%S'),
+                'Error message':error_message
+            }
+        }
+        with open(f'dataset/{station}/{station}_log.json', 'w') as file:
+            json.dump(log, file)

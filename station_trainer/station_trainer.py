@@ -94,6 +94,8 @@ class StationTrainer():
         
         # Getting scores
         scores = model.decision_function(training_data)
+
+        # Scaling
         scaler = MinMaxScaler(feature_range=(0, 1))
         scores = scaler.fit_transform(scores.reshape(-1, 1)).flatten()
 
