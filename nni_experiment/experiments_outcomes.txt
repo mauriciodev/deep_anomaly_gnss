@@ -215,6 +215,16 @@ best = {
     "dropout": 0.15, 0.20
 }
 
+[2024-05-13 08:41:15] Creating experiment, Experiment ID: vw9bphn2 (MSE = 0.005772)
+best = {
+    "seq_len": 10,
+    "e_layers": 3,
+    "d_model": 128,
+    "d_ff": 128,
+    "top_k": 3,
+    "dropout": 0.15
+}
+
 BRAZ Experiment----------------
 [2024-05-08 19:17:20] Creating experiment, Experiment ID: i1st5lgk (MSE = 0.005049)
 best = {
@@ -236,3 +246,4 @@ best = {
     "top_k": 5,
     "dropout": 0.25
 }
+

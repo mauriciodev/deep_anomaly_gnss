@@ -22,9 +22,12 @@ from darts.ad.scorers import (
 from darts.ad.anomaly_model.filtering_am import FilteringAnomalyModel
 
 class DartsTrainer():
-    def __init__(self, model:FilteringAnomalyModel, scorers:list, station:str, use_du:bool) -> None:
+    def __init__(self, model:FilteringAnomalyModel, scorers:list, scorer_index:int, station:str, use_du:bool) -> None:
         self.station = station
         self.use_du = use_du
+
+        # Scorer index (0:Norm, 1:KMeans, 2:Difference)
+        self.scorer_index = scorer_index
 
         # Defining station filepaths
         self.gnss_data_path = f'dataset/{station}/{station}_NEU_train.csv'
@@ -65,11 +68,8 @@ class DartsTrainer():
         # Elapsed score time
         score_time = end - start
 
-        # Scorer index (0:Norm, 1:KMeans, 2:Difference)
-        score_index = 0
-
         # Transforming the scores into a numpy array 
-        scores = scores[score_index].data_array().to_numpy()
+        scores = scores[self.scorer_index].data_array().to_numpy()
 
         # DifferenceScorer return an anomaly scores for each component in axis 1. Calculating the mean
         scores = np.mean(scores, axis=1)
@@ -227,6 +227,7 @@ if __name__ == '__main__':
     trainer = DartsTrainer(
         model=filtering_model,
         scorers=scorers,
+        scorer_index=0,
         station=station,
         use_du=False,
     )
