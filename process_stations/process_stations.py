@@ -46,7 +46,7 @@ def prepare_darts(filtering_model_index:int):
     elif filtering_model_name == 'KalmanFilter':
         filtering_model = KalmanFilter()
     else:
-        filtering_model = MovingAverageFilter(window=12)
+        filtering_model = MovingAverageFilter(window=10)
 
     scorers = [
         NormScorer(ord=1),
