@@ -59,7 +59,7 @@ class StationTrainer():
             'prt_steps': 1, 
             'pred_len': 0, 
             'e_layers': 3, 
-            'd_model': 64, 
+            'd_model': 128, 
             'd_ff': 128, 
             'dropout': 0.3, 
             'top_k': 5, 

@@ -154,11 +154,11 @@ if __name__ == '__main__':
         '-s',
         '-stations',
         help='Station.txt file. A list of 4 digit SIRGAS station codes, separated by comma.',
-        default='dataset/brazil_stations.txt' # positional argument
+        default='dataset/ecuador_stations.txt' # positional argument
     )           
     stations_filepath = parser.parse_args().s
     stations = read_stations_file(stations_filepath)
     # Sample stations to check the code
     #stations = ['BRAZ', 'CHEC']
     file_name = (Path(stations_filepath).stem)+'_global_metrics.json'
-    process_stations(stations=stations, output_file=f'dataset/{file_name}', filtering_model_index=1, scorer_index=1)
+    process_stations(stations=stations, output_file=f'dataset/{file_name}', filtering_model_index=0, scorer_index=0)
