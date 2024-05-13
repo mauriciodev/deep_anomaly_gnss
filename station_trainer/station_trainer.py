@@ -61,7 +61,7 @@ class StationTrainer():
             'e_layers': 3, 
             'd_model': 128, 
             'd_ff': 128, 
-            'dropout': 0.15, 
+            'dropout': 0.25, 
             'top_k': 3, 
             'num_kernels': 6, 
             'verbose': 2, 
