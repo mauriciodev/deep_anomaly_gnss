@@ -247,3 +247,12 @@ best = {
     "dropout": 0.25
 }
 
+[2024-05-13 09:16:30] Creating experiment, Experiment ID: x4jl8hbc (MSE = 0.005727)
+best = {
+    "seq_len": 10,
+    "e_layers": 2,
+    "d_model": 32,
+    "d_ff": 128,
+    "top_k": 3,
+    "dropout": 0.3
+}

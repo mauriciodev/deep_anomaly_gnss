@@ -53,7 +53,7 @@ class DartsTrainer():
 
         # Training
         start = time.time()
-        allow_model_training = True if isinstance(self.anomaly_model, KalmanFilter) else False
+        allow_model_training = True if isinstance(self.anomaly_model.model, KalmanFilter) else False
         self.anomaly_model.fit(self.train, allow_model_training=allow_model_training)
         end = time.time()
 
