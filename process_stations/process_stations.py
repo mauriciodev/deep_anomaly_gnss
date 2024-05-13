@@ -9,6 +9,20 @@ from pathlib import Path
 import sys
 sys.path.append('.')
 from station_trainer.station_trainer import StationTrainer
+from comparisons.anomaly_detection_darts import DartsTrainer
+
+# darts imports
+from darts import TimeSeries
+from darts.models import (
+    GaussianProcessFilter,
+    KalmanFilter,
+    MovingAverageFilter,
+)
+from darts.ad.scorers import (
+    NormScorer, 
+    KMeansScorer,
+    DifferenceScorer,
+)
 
 def read_stations_file(stations_file:str) -> list:
     try:
@@ -22,8 +36,27 @@ def read_stations_file(stations_file:str) -> list:
     except Exception as e:
         print(f"Error reading file '{stations_file}': {e}")
         return []
+    
+def prepare_darts(filtering_model_name_index:int):
+    filtering_model_names = ['GaussianProcessFilter', 'KalmanFilter','MovingAverageFilter']
+    filtering_model_name = filtering_model_names[filtering_model_name_index]
+
+    # Instatiate of a filtering model
+    if filtering_model_name == 'GaussianProcessFilter':
+        filtering_model = GaussianProcessFilter()
+    elif filtering_model_name == 'KalmanFilter':
+        filtering_model = KalmanFilter()
+    else:
+        filtering_model = MovingAverageFilter(window=10)
+
+    scorers = [
+        NormScorer(ord=1),
+        KMeansScorer(k=50),
+        DifferenceScorer(),
+    ]
+    return filtering_model, scorers 
         
-def process_stations(stations:list, output_file:str):
+def process_stations(stations:list, output_file:str, filtering_model_name_index:int=-1):
     total_truth = []
     total_pred = []
     total_scores = []
@@ -34,7 +67,11 @@ def process_stations(stations:list, output_file:str):
             pbar.set_postfix({'Processing Station': station})
 
             # Our station trainer
-            station_trainer = StationTrainer(station=station, use_du=False)
+            if filtering_model_name_index == -1:
+                station_trainer = StationTrainer(station=station, use_du=False)
+            else:
+                filtering_model, scorers = prepare_darts(filtering_model_name_index)
+                station_trainer = DartsTrainer(model=filtering_model, scorers=scorers, station=station, use_du=False)
 
             scores, truth, pred, metrics = station_trainer.train()
             if (scores is not None) and (truth is not None) and (pred is not None) and (metrics is not None):
@@ -109,11 +146,11 @@ if __name__ == '__main__':
         '-s',
         '-stations',
         help='Station.txt file. A list of 4 digit SIRGAS station codes, separated by comma.',
-        default='dataset/brazil_stations.txt' # positional argument
+        default='dataset/ecuador_stations.txt' # positional argument
     )           
     stations_filepath = parser.parse_args().s
     stations = read_stations_file(stations_filepath)
     # Sample stations to check the code
     #stations = ['BRAZ', 'CHEC']
     file_name = (Path(stations_filepath).stem)+'_global_metrics.json'
-    process_stations(stations=stations, output_file=f'dataset/{file_name}')
+    process_stations(stations=stations, output_file=f'dataset/{file_name}', filtering_model_name_index=2)

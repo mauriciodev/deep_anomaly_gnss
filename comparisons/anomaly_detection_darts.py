@@ -22,10 +22,9 @@ from darts.ad.scorers import (
 from darts.ad.anomaly_model.filtering_am import FilteringAnomalyModel
 
 class DartsTrainer():
-    def __init__(self, filtering_model_name, model, scorers, station:str, use_du:bool) -> None:
+    def __init__(self, model:FilteringAnomalyModel, scorers:list, station:str, use_du:bool) -> None:
         self.station = station
         self.use_du = use_du
-        self.filtering_model_name = filtering_model_name
 
         # Defining station filepaths
         self.gnss_data_path = f'dataset/{station}/{station}_NEU_train.csv'
@@ -51,7 +50,7 @@ class DartsTrainer():
 
         # Training
         start = time.time()
-        allow_model_training = True if self.filtering_model_name == 'KalmanFilter' else False
+        allow_model_training = True if isinstance(self.anomaly_model, KalmanFilter) else False
         self.anomaly_model.fit(self.train, allow_model_training=allow_model_training)
         end = time.time()
 
@@ -150,7 +149,7 @@ class DartsTrainer():
 
         return gnss_data, gnss_label    
 
-    def plot_experiment(self, scores:np.array, pred) -> None:
+    def plot_experiment(self, scores:np.array, pred:np.array) -> None:
         plt.clf()
 
         # Create the figure and primary y-axis
@@ -165,11 +164,17 @@ class DartsTrainer():
         if not anomalies.empty:
             ax1.vlines(anomalies.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'black', linestyle='dashed', alpha=0.5, label='Descontinuity')
 
+        predictions = self.label.pd_dataframe()
+        predictions['pred'] = pred
+        predictions = predictions[predictions.pred == 1]
+        if not predictions.empty:
+            ax1.vlines(anomalies.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'red', alpha=0.5, label='Prediction')
+
         # Create the secondary y-axis (twinx)
         ax2 = ax1.twinx()
 
         # Plot data3 on the secondary y-axis
-        ax2.plot(self.train.time_index, scores, color='red', linewidth=0.5, label='Scores')
+        ax2.plot(self.train.time_index, scores, color='black', linewidth=0.5, label='Scores')
 
         # Set labels for axes
         ax1.set_xlabel('GPS Week')
@@ -191,7 +196,7 @@ class DartsTrainer():
             json.dump(metrics, result)
 
 if __name__ == '__main__':
-    station = 'CEFT'
+    station = 'BRAZ'
 
     filtering_model_names = ['GaussianProcessFilter', 'KalmanFilter','MovingAverageFilter']
     filtering_model_name = filtering_model_names[2]
@@ -211,7 +216,6 @@ if __name__ == '__main__':
     ]
     
     trainer = DartsTrainer(
-        filtering_model_name=filtering_model_name,
         model=filtering_model,
         scorers=scorers,
         station=station,
