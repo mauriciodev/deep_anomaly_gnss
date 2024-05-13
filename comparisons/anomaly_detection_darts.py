@@ -196,7 +196,7 @@ class DartsTrainer():
             json.dump(metrics, result)
 
 if __name__ == '__main__':
-    station = 'BRAZ'
+    station = 'CHEC'
 
     filtering_model_names = ['GaussianProcessFilter', 'KalmanFilter','MovingAverageFilter']
     filtering_model_name = filtering_model_names[2]

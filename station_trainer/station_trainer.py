@@ -36,6 +36,15 @@ class StationTrainer():
         except:
             gnss_data, gnss_label = pd.DataFrame(), pd.DataFrame()
 
+        # Filling missing data. Creating missing gps weeks and filling with 0
+        gnss_data = gnss_data.set_index("gps_week")
+        gnss_data = gnss_data.reindex(list(range(gnss_data.index.min(),gnss_data.index.max()+1)),fill_value=0)
+        gnss_data = gnss_data.reset_index()
+
+        gnss_label = gnss_label.set_index("gps_week")
+        gnss_label = gnss_label.reindex(list(range(gnss_label.index.min(),gnss_label.index.max()+1)),fill_value=0)
+        gnss_label = gnss_label.reset_index()
+
         return gnss_data, gnss_label
     
     def get_params(self):
