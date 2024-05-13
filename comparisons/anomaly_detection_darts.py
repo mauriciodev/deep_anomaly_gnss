@@ -160,15 +160,15 @@ class DartsTrainer():
         ax1.plot(self.train.time_index, self.train.values()[:, 1], color = 'gold', label = 'Series DE')
 
         # Plotting anomalies
-        anomalies = self.gnss_label[self.gnss_label.label == 1]
+        label = self.label.pd_dataframe()
+        anomalies = label[label.label == 1]
         if not anomalies.empty:
             ax1.vlines(anomalies.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'black', linestyle='dashed', alpha=0.5, label='Descontinuity')
 
-        predictions = self.label.pd_dataframe()
-        predictions['pred'] = pred
-        predictions = predictions[predictions.pred == 1]
+        label['pred'] = pred
+        predictions = label[label.pred == 1]
         if not predictions.empty:
-            ax1.vlines(anomalies.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'red', alpha=0.5, label='Prediction')
+            ax1.vlines(predictions.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'red', alpha=0.5, label='Prediction')
 
         # Create the secondary y-axis (twinx)
         ax2 = ax1.twinx()
