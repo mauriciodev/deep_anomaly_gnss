@@ -161,6 +161,6 @@ if __name__ == '__main__':
     # Sample stations to check the code
     #stations = ['BRAZ', 'CHEC']
     file_name = (Path(stations_filepath).stem)+'_global_metrics.json'
-    
+
     # Use filtering_model_index = -1 for TimesNet/ Use filtering_model_index = 0,1,2 for Darts
     process_stations(stations=stations, output_file=f'dataset/{file_name}', filtering_model_index=-1, scorer_index=0)
