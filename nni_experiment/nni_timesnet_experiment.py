@@ -7,6 +7,7 @@ import numpy as np
 import logging
 import os
 from sklearn.preprocessing import MinMaxScaler
+import argparse
 
 # Importing our custom TimesNet with Convergence Early Stop
 import sys
@@ -82,7 +83,6 @@ def exec_process(station:str, use_du:bool = False):
         'batch_size': 128, 
         'epoch_steps': -1, 
         'prt_steps': 1, 
-        'device': 'mps', 
         'pred_len': 0, 
         'e_layers': 3, 
         'd_model': 128, 
@@ -114,4 +114,12 @@ def exec_process(station:str, use_du:bool = False):
     nni.report_final_result(f1)
 
 if __name__ == '__main__':
-    exec_process('BRAZ', False)
+    parser = argparse.ArgumentParser(prog='experiment')
+    parser.add_argument(
+        '-s',
+        '-station',
+        help='Station name',
+        default='BRAZ' # positional argument
+    )
+    station = parser.parse_args().s
+    exec_process(station, False)
