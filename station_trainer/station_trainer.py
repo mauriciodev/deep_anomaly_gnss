@@ -62,7 +62,7 @@ class StationTrainer():
             'd_model': 128, 
             'd_ff': 128, 
             'dropout': 0.3, 
-            'top_k': 5, 
+            'top_k': 3, 
             'num_kernels': 6, 
             'verbose': 2, 
             'random_state': 42, 
