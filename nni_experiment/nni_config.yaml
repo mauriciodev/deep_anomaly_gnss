@@ -1,7 +1,7 @@
 experimentName: TimesNet Hyper Tune
 searchSpace:
   seq_len:
-    _type: choice
+    _type: randint
     _value: [10, 20]
   e_layers:
     _type: choice
@@ -14,7 +14,7 @@ searchSpace:
     _value: [32, 64, 128]
   top_k:
     _type: choice
-    _value: [3, 5]
+    _value: [3, 4, 5]
   dropout:
     _type: quniform
     _value: [0.1, 0.5, 0.05]

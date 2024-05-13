@@ -19,12 +19,12 @@ parser.add_argument(
 station = parser.parse_args().s
 
 params = {
-    'seq_len':{"_type": "choice", "_value": [10, 20]},
+    'seq_len':{"_type": "randint", "_value": [10, 20]},
     'e_layers':{"_type": "choice", "_value": [2, 3]},
     'd_model':{"_type": "choice", "_value": [32, 64, 128]},
     'd_ff':{"_type": "choice", "_value": [32, 64, 128]},
-    'dropout':{"_type": "quniform", "_value": [0.1, 0.5, 0.05]},
     'top_k':{"_type": "choice", "_value": [3, 4, 5]},
+    'dropout':{"_type": "quniform", "_value": [0.1, 0.5, 0.05]},
 }
 
 # Configure experiment

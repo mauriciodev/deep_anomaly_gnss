@@ -216,7 +216,7 @@ if __name__ == '__main__':
     elif filtering_model_name == 'KalmanFilter':
         filtering_model = KalmanFilter()
     else:
-        filtering_model = MovingAverageFilter(window=10)
+        filtering_model = MovingAverageFilter(window=12)
 
     scorers = [
         NormScorer(ord=1),
