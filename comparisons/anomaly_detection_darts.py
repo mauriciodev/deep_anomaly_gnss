@@ -65,17 +65,17 @@ class DartsTrainer():
         # Elapsed score time
         score_time = end - start
 
-        # Scorer index
+        # Scorer index (0:Norm, 1:KMeans, 2:Difference)
         score_index = 0
 
         # Transforming the scores into a numpy array 
         scores = scores[score_index].data_array().to_numpy()
 
-        # DifferenceScorer return an anomaly for each component in axis 1. Calculating the mean
+        # DifferenceScorer return an anomaly scores for each component in axis 1. Calculating the mean
         scores = np.mean(scores, axis=1)
         scores = scores.squeeze()
 
-        # Scaling
+        # Scaling between 0-1
         scaler = MinMaxScaler(feature_range=(0, 1))
         scores = scaler.fit_transform(scores.reshape(-1, 1)).flatten()
 
@@ -91,7 +91,7 @@ class DartsTrainer():
         f1 = sklearn.metrics.f1_score(pred, truth)
 
         # MSE
-        mse = np.mean((scores - pred) ** 2)
+        mse = np.mean((scores - truth) ** 2)
 
         print(f"Accuracy {accuracy}")
         print(f"Precision {precision}")
@@ -127,17 +127,17 @@ class DartsTrainer():
             df=self.gnss_data, 
             time_col=self.gnss_data.columns[0], 
             value_cols=self.gnss_data.columns[1:i], 
-            fill_missing_dates=True, 
-            freq=1, 
-            fillna_value=0.0,
+            #fill_missing_dates=True, 
+            #freq=1, 
+            #fillna_value=0.0,
             )
         self.label = TimeSeries.from_dataframe(
             df=self.gnss_label, 
             time_col=self.gnss_label.columns[0], 
             value_cols=self.gnss_label.columns[1], 
-            fill_missing_dates=True, 
-            freq=1, 
-            fillna_value=1.0,
+            #fill_missing_dates=True, 
+            #freq=1, 
+            #fillna_value=1.0,
             )
     
     def get_data(self, gnss_data_path: str, gnss_label_path:str) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -146,6 +146,15 @@ class DartsTrainer():
             gnss_label = pd.read_csv(gnss_label_path)
         except:
             gnss_data, gnss_label = pd.DataFrame(), pd.DataFrame()
+
+        # Filling missing data. Creating missing gps weeks and filling with 0
+        gnss_data = gnss_data.set_index("gps_week")
+        gnss_data = gnss_data.reindex(list(range(gnss_data.index.min(),gnss_data.index.max()+1)),fill_value=0)
+        gnss_data = gnss_data.reset_index()
+
+        gnss_label = gnss_label.set_index("gps_week")
+        gnss_label = gnss_label.reindex(list(range(gnss_label.index.min(),gnss_label.index.max()+1)),fill_value=0)
+        gnss_label = gnss_label.reset_index()
 
         return gnss_data, gnss_label    
 
@@ -163,12 +172,12 @@ class DartsTrainer():
         label = self.label.pd_dataframe()
         anomalies = label[label.label == 1]
         if not anomalies.empty:
-            ax1.vlines(anomalies.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'black', linestyle='dashed', alpha=0.5, label='Descontinuity')
+            ax1.vlines(anomalies.index, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'black', linestyle='dashed', alpha=0.5, label='Descontinuity')
 
         label['pred'] = pred
         predictions = label[label.pred == 1]
         if not predictions.empty:
-            ax1.vlines(predictions.gps_week, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'red', alpha=0.5, label='Prediction')
+            ax1.vlines(predictions.index, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'red', alpha=0.5, label='Prediction')
 
         # Create the secondary y-axis (twinx)
         ax2 = ax1.twinx()
@@ -196,7 +205,7 @@ class DartsTrainer():
             json.dump(metrics, result)
 
 if __name__ == '__main__':
-    station = 'CHEC'
+    station = 'BRAZ'
 
     filtering_model_names = ['GaussianProcessFilter', 'KalmanFilter','MovingAverageFilter']
     filtering_model_name = filtering_model_names[2]
