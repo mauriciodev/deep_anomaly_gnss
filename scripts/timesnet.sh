@@ -10,6 +10,6 @@
     # 1 - KMeansScorer
     # 2 - DifferenceScorer
 python -u process_stations/process_stations.py \
-  -stations dataset/brazil_stations.txt \
+  -stations dataset/ecuador_stations.txt \
   -params process_stations/params_chec.json \
   -filtering_model_index -1 \
