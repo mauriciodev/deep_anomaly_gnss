@@ -147,16 +147,34 @@ class DartsTrainer():
         except:
             gnss_data, gnss_label = pd.DataFrame(), pd.DataFrame()
 
+        return self.fill_missing_data(gnss_data=gnss_data, gnss_label=gnss_label)
+
+    def fill_missing_data(self, gnss_data, gnss_label):
         # Filling missing data. Creating missing gps weeks and filling with 0
         gnss_data = gnss_data.set_index("gps_week")
         gnss_data = gnss_data.reindex(list(range(gnss_data.index.min(),gnss_data.index.max()+1)),fill_value=0)
         gnss_data = gnss_data.reset_index()
 
+        # Step 1: copy the gps_week and set index
+        gnss_label['week_copy'] = gnss_label.gps_week
         gnss_label = gnss_label.set_index("gps_week")
+
+        # Step 2 getting the edge weeks
+        edge_week1 = gnss_label.diff(periods = 1)
+        edge_week1 = edge_week1[edge_week1.week_copy > 1]
+        edge_week2 = gnss_label.diff(periods = -1)
+        edge_week2 = edge_week2[edge_week2.week_copy < -1]
+        edge_weeks = list(edge_week1.index) + list(edge_week2.index)
+
+        # Filling missing data. Creating missing gps weeks and filling with 0
         gnss_label = gnss_label.reindex(list(range(gnss_label.index.min(),gnss_label.index.max()+1)),fill_value=0)
         gnss_label = gnss_label.reset_index()
 
-        return gnss_data, gnss_label    
+        # Setting the edge weeks as  1
+        gnss_label.loc[gnss_label['gps_week'].isin(edge_weeks), 'label'] = 1
+        gnss_label = gnss_label.drop('week_copy', axis=1)
+
+        return gnss_data, gnss_label
 
     def plot_experiment(self, scores:np.array, pred:np.array) -> None:
         plt.clf()
