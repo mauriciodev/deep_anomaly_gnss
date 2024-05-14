@@ -6,6 +6,7 @@ import numpy as np
 import sklearn
 import datetime
 import json
+import argparse
 
 # darts imports
 from darts import TimeSeries
@@ -223,10 +224,36 @@ class DartsTrainer():
             json.dump(metrics, result)
 
 if __name__ == '__main__':
-    station = 'CHEC'
+    parser = argparse.ArgumentParser(prog='Process Stations')
+    parser.add_argument(
+        '-s',
+        '-station',
+        help='Station name of a single station',
+        default='CHEC' # positional argument
+    )
+    parser.add_argument(
+        '-f',
+        '-filtering_model_index',
+        help='Use filtering_model_index = -1 for TimesNet/ Use filtering_model_index = 0,1,2 for Darts.',
+        choices=[-1,0,1,2],
+        type=int,
+        default=-1 # positional argument
+    )
+    parser.add_argument(
+        '-si',
+        '-scorer_index',
+        help='Scorer index for the Darts filters = 0,1,2 for Darts. Not used on TimesNet.',
+        choices=[0,1,2],
+        type=int,
+        default=0 # positional argument
+    )
+
+    parsed_args = parser.parse_args()
+    print(f"Running with {parsed_args} parameters.")
+    station = parsed_args.s
 
     filtering_model_names = ['GaussianProcessFilter', 'KalmanFilter','MovingAverageFilter']
-    filtering_model_name = filtering_model_names[2]
+    filtering_model_name = filtering_model_names[parsed_args.f]
 
     # Instatiate of a filtering model
     if filtering_model_name == 'GaussianProcessFilter':
@@ -241,11 +268,11 @@ if __name__ == '__main__':
         KMeansScorer(k=50),
         DifferenceScorer(),
     ]
-    
+
     trainer = DartsTrainer(
         model=filtering_model,
         scorers=scorers,
-        scorer_index=0,
+        scorer_index=parsed_args.si,
         station=station,
         use_du=False,
     )

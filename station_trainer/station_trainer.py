@@ -7,6 +7,7 @@ from sklearn.preprocessing import MinMaxScaler
 import json
 import time
 import datetime
+import argparse
 
 # Importing our custom TimesNet with Convergence Early Stop
 import sys
@@ -217,8 +218,31 @@ class StationTrainer():
             json.dump(metrics, result)        
 
 if __name__ == '__main__':
-    station = 'CEFT'
-    station_trainer = StationTrainer(station=station, use_du=False)
+    parser = argparse.ArgumentParser(prog='Process Stations')
+    parser.add_argument(
+        '-s',
+        '-station',
+        help='Station name of a single station',
+        default='CEFT' # positional argument
+    )
+    parser.add_argument(
+        '-p',
+        '-params',
+        help='params.json file. To control the model\'s hyperparameters.',
+        default='' # positional argument
+    )
+    parsed_args = parser.parse_args()
+    print(f"Running with {parsed_args} parameters.")
+    station = parsed_args.s
+
+    paramsFile = parsed_args.p
+    if paramsFile == '':
+        params = {}
+    else:
+        with open(paramsFile, 'r') as f:
+            params = json.load(f)
+
+    station_trainer = StationTrainer(station=station, use_du=False, arg_params=params)
 
     try:
         scores, truth, pred, metrics = station_trainer.train()
