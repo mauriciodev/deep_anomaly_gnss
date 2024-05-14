@@ -16,10 +16,18 @@ parser.add_argument(
     help='Station name',
     default='BRAZ' # positional argument
 )
-station = parser.parse_args().s
+parser.add_argument(
+    '-c',
+    '-concurrency',
+    help='Number of parallel experiments',
+    type=int,
+    default=1 # positional argument
+)
+parsed_args =parser.parse_args()
+station = parsed_args.s
 
 params = {
-    'seq_len':{"_type": "randint", "_value": [10, 20]},
+    'seq_len':{"_type": "choice", "_value": [10, 20]},
     'e_layers':{"_type": "choice", "_value": [2, 3]},
     'd_model':{"_type": "choice", "_value": [32, 64, 128]},
     'd_ff':{"_type": "choice", "_value": [32, 64, 128]},
@@ -34,7 +42,7 @@ experiment.config.search_space = params
 experiment.config.trial_command = f"python nni_experiment/nni_timesnet_experiment.py -s {station}"
 experiment.config.trial_code_directory = '.'
 #experiment.config.trial_gpu_number = 1
-experiment.config.trial_concurrency = 1
+experiment.config.trial_concurrency = parsed_args.c
 experiment.config.max_trial_number = 50
 experiment.config.tuner.name = 'TPE'
 experiment.config.tuner.class_args['optimize_mode'] = 'minimize'
