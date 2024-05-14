@@ -55,7 +55,7 @@ def prepare_darts(filtering_model_index:int):
     ]
     return filtering_model, scorers 
         
-def process_stations(stations:list, output_file:str, filtering_model_index:int=-1, scorer_index:int=0):
+def process_stations(stations:list, output_file:str, filtering_model_index:int=-1, scorer_index:int=0, params={}):
     total_truth = []
     total_pred = []
     total_scores = []
@@ -70,6 +70,7 @@ def process_stations(stations:list, output_file:str, filtering_model_index:int=-
                 station_trainer = StationTrainer(
                     station=station, 
                     use_du=False,
+                    arg_params=params
                 )
             else:
                 filtering_model, scorers = prepare_darts(filtering_model_index)
@@ -155,12 +156,33 @@ if __name__ == '__main__':
         '-stations',
         help='Station.txt file. A list of 4 digit SIRGAS station codes, separated by comma.',
         default='dataset/ecuador_stations.txt' # positional argument
-    )           
+    )
+    parser.add_argument(
+        '-p',
+        '-params',
+        help='params.json file. To control the model\'s hyperparameters.',
+        default='' # positional argument
+    )
+    parser.add_argument(
+        '-f',
+        '-filtering_model_index',
+        help='Use filtering_model_index = -1 for TimesNet/ Use filtering_model_index = 0,1,2 for Darts.',
+        choices=[-1,0,1,2],
+        default=-1 # positional argument
+    )
     stations_filepath = parser.parse_args().s
     stations = read_stations_file(stations_filepath)
     # Sample stations to check the code
     #stations = ['BRAZ', 'CHEC']
     file_name = (Path(stations_filepath).stem)+'_global_metrics.json'
 
+    paramsFile = parser.parse_args().p
+    if paramsFile == '':
+        params = {}
+    else:
+        with open(paramsFile, 'r') as f:
+            params = json.load(f)
+
+
     # Use filtering_model_index = -1 for TimesNet/ Use filtering_model_index = 0,1,2 for Darts
-    process_stations(stations=stations, output_file=f'dataset/{file_name}', filtering_model_index=-1, scorer_index=0)
+    process_stations(stations=stations, output_file=f'dataset/{file_name}', filtering_model_index=parser.parse_args().f, scorer_index=0, params=params)

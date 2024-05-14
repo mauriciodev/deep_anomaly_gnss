@@ -14,7 +14,7 @@ sys.path.append('.')
 from model.timesnet import TimesNet as Model
 
 class StationTrainer():
-    def __init__(self, station:str, use_du:bool) -> None:
+    def __init__(self, station:str, use_du:bool, arg_params={}) -> None:
         self.station = station
         self.use_du = use_du
 
@@ -25,6 +25,30 @@ class StationTrainer():
         self.metrics_path = f'dataset/{station}/{station}_metrics.json'
 
         self.gnss_data, self.gnss_label = self.get_data(self.gnss_data_path, self.gnss_label_path)
+        self.params = {
+            'seq_len': 10, 
+            'stride': 1, 
+            'lr': 0.0001, 
+            'epochs': 10, 
+            'batch_size': 128, 
+            'epoch_steps': -1, 
+            'prt_steps': 1, 
+            'pred_len': 0, 
+            'e_layers': 3, 
+            'd_model': 128, 
+            'd_ff': 128, 
+            'dropout': 0.15, 
+            'top_k': 3, 
+            'num_kernels': 6, 
+            'verbose': 2, 
+            'random_state': 42, 
+            'percentile': 99.0, 
+            'patience': 3, 
+            'delta': 1e-7
+        }
+        if torch.backends.mps.is_available(): params['device']='mps'
+        self.params.update(arg_params)
+
 
     def get_quakes(self):
         return pd.read_csv('dataset/quakes.csv')
@@ -49,29 +73,7 @@ class StationTrainer():
     
     def get_params(self):
         # Best Hyperparameters
-        params = {
-            'seq_len': 10, 
-            'stride': 1, 
-            'lr': 0.0001, 
-            'epochs': 10, 
-            'batch_size': 128, 
-            'epoch_steps': -1, 
-            'prt_steps': 1, 
-            'pred_len': 0, 
-            'e_layers': 3, 
-            'd_model': 128, 
-            'd_ff': 128, 
-            'dropout': 0.15, 
-            'top_k': 3, 
-            'num_kernels': 6, 
-            'verbose': 2, 
-            'random_state': 42, 
-            'percentile': 99.0, 
-            'patience': 3, 
-            'delta': 1e-7
-        }
-        if torch.backends.mps.is_available(): params['device']='mps'
-        return params
+        return self.params
     
     def train(self) -> tuple[np.array, np.array, np.array]:
         # Return None in case we don't have data
