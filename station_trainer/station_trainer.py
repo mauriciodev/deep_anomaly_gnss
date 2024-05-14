@@ -24,7 +24,10 @@ class StationTrainer():
         self.png_path = f'dataset/{station}/{station}_trained.png'
         self.metrics_path = f'dataset/{station}/{station}_metrics.json'
 
+        # GNSS data
         self.gnss_data, self.gnss_label = self.get_data(self.gnss_data_path, self.gnss_label_path)
+
+        # Hyperparameters
         self.params = {
             'seq_len': 10, 
             'stride': 1, 
@@ -37,8 +40,8 @@ class StationTrainer():
             'e_layers': 3, 
             'd_model': 128, 
             'd_ff': 128, 
-            'dropout': 0.15, 
-            'top_k': 3, 
+            'dropout': 0.25, 
+            'top_k': 5, 
             'num_kernels': 6, 
             'verbose': 2, 
             'random_state': 42, 
@@ -46,9 +49,8 @@ class StationTrainer():
             'patience': 3, 
             'delta': 1e-7
         }
-        if torch.backends.mps.is_available(): params['device']='mps'
+        if torch.backends.mps.is_available(): self.params['device']='mps'
         self.params.update(arg_params)
-
 
     def get_quakes(self):
         return pd.read_csv('dataset/quakes.csv')
@@ -73,7 +75,7 @@ class StationTrainer():
     
     def get_params(self):
         # Best Hyperparameters
-
+        return self.get_params
     
     def train(self) -> tuple[np.array, np.array, np.array]:
         # Return None in case we don't have data
