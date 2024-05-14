@@ -186,3 +186,4 @@ if __name__ == '__main__':
 
     # Use filtering_model_index = -1 for TimesNet/ Use filtering_model_index = 0,1,2 for Darts
     process_stations(stations=stations, output_file=f'dataset/{file_name}', filtering_model_index=parser.parse_args().f, scorer_index=0, params=params)
+
