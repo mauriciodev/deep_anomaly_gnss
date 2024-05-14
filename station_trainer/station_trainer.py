@@ -73,7 +73,7 @@ class StationTrainer():
     
     def get_params(self):
         # Best Hyperparameters
-        return self.params
+
     
     def train(self) -> tuple[np.array, np.array, np.array]:
         # Return None in case we don't have data
