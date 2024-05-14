@@ -234,15 +234,15 @@ if __name__ == '__main__':
     parser.add_argument(
         '-f',
         '-filtering_model_index',
-        help='Use filtering_model_index = -1 for TimesNet/ Use filtering_model_index = 0,1,2 for Darts.',
-        choices=[-1,0,1,2],
+        help='Use filtering_model_index = 0,1,2.',
+        choices=[0,1,2],
         type=int,
-        default=-1 # positional argument
+        default=0 # positional argument
     )
     parser.add_argument(
         '-si',
         '-scorer_index',
-        help='Scorer index for the Darts filters = 0,1,2 for Darts. Not used on TimesNet.',
+        help='Scorer index for the Darts filters = 0,1,2.',
         choices=[0,1,2],
         type=int,
         default=0 # positional argument

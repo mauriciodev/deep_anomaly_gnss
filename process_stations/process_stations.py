@@ -8,8 +8,8 @@ import argparse
 from pathlib import Path
 import sys
 sys.path.append('.')
-from station_trainer.station_trainer import StationTrainer
-from comparisons.anomaly_detection_darts import DartsTrainer
+from station_trainer.timesnet_station_trainer import StationTrainer
+from station_trainer.darts_station_trainer import DartsTrainer
 
 # darts imports
 from darts.models import (
@@ -196,4 +196,3 @@ if __name__ == '__main__':
 
     # Use filtering_model_index = -1 for TimesNet/ Use filtering_model_index = 0,1,2 for Darts
     process_stations(stations=stations, output_file=f'dataset/{file_name}', filtering_model_index=parsed_args.f, scorer_index=parsed_args.si, params=params)
-
