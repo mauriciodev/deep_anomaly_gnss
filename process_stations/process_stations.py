@@ -168,15 +168,25 @@ if __name__ == '__main__':
         '-filtering_model_index',
         help='Use filtering_model_index = -1 for TimesNet/ Use filtering_model_index = 0,1,2 for Darts.',
         choices=[-1,0,1,2],
+        type=int,
         default=-1 # positional argument
     )
-    stations_filepath = parser.parse_args().s
+    parser.add_argument(
+        '-si',
+        '-scorer_index',
+        help='Scorer index for the Darts filters = 0,1,2 for Darts. Not used on TimesNet.',
+        choices=[0,1,2],
+        type=int,
+        default=0 # positional argument
+    )
+    parsed_args = parser.parse_args()
+    stations_filepath = parsed_args.s
     stations = read_stations_file(stations_filepath)
     # Sample stations to check the code
     #stations = ['BRAZ', 'CHEC']
     file_name = (Path(stations_filepath).stem)+'_global_metrics.json'
 
-    paramsFile = parser.parse_args().p
+    paramsFile = parsed_args.p
     if paramsFile == '':
         params = {}
     else:
@@ -185,5 +195,5 @@ if __name__ == '__main__':
 
 
     # Use filtering_model_index = -1 for TimesNet/ Use filtering_model_index = 0,1,2 for Darts
-    process_stations(stations=stations, output_file=f'dataset/{file_name}', filtering_model_index=parser.parse_args().f, scorer_index=0, params=params)
+    process_stations(stations=stations, output_file=f'dataset/{file_name}', filtering_model_index=parsed_args.f, scorer_index=parsed_args.si, params=params)
 
