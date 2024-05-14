@@ -174,8 +174,6 @@ class DartsTrainer():
         gnss_label.loc[gnss_label['gps_week'].isin(edge_weeks), 'label'] = 1
         gnss_label = gnss_label.drop('week_copy', axis=1)
 
-        gnss_label.to_csv('teste.csv', index=False)
-
         return gnss_data, gnss_label
 
     def plot_experiment(self, scores:np.array, pred:np.array) -> None:
