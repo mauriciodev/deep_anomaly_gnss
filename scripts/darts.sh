@@ -9,7 +9,6 @@
     # 0 - NormScorer
     # 1 - KMeansScorer
     # 2 - DifferenceScorer
-
 python -u process_stations/process_stations.py -stations dataset/brazil_stations.txt -filtering_model_index 0 -scorer_index 0
 python -u process_stations/process_stations.py -stations dataset/brazil_stations.txt -filtering_model_index 0 -scorer_index 1
 python -u process_stations/process_stations.py -stations dataset/brazil_stations.txt -filtering_model_index 0 -scorer_index 2
@@ -19,7 +18,6 @@ python -u process_stations/process_stations.py -stations dataset/brazil_stations
 python -u process_stations/process_stations.py -stations dataset/brazil_stations.txt -filtering_model_index 2 -scorer_index 0
 python -u process_stations/process_stations.py -stations dataset/brazil_stations.txt -filtering_model_index 2 -scorer_index 1
 python -u process_stations/process_stations.py -stations dataset/brazil_stations.txt -filtering_model_index 2 -scorer_index 2
-
 
 python -u process_stations/process_stations.py -stations dataset/ecuador_stations.txt -filtering_model_index 0 -scorer_index 0
 python -u process_stations/process_stations.py -stations dataset/ecuador_stations.txt -filtering_model_index 0 -scorer_index 1
