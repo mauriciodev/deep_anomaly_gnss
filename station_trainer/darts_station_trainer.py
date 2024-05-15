@@ -65,7 +65,7 @@ class DartsTrainer():
         elif model_name == 'KalmanFilter':
             model = KalmanFilter()
         elif model_name == 'MovingAverageFilter':
-            model = MovingAverageFilter(window=10)
+            model = MovingAverageFilter(window=self.seq_len)
         elif model_name == 'TSMixerModel':
             model = TSMixerModel(**params)
         elif model_name == 'TransformerModel':
@@ -197,33 +197,6 @@ class DartsTrainer():
         except:
             gnss_data, gnss_label = pd.DataFrame(), pd.DataFrame()
 
-        return self.fill_missing_data(gnss_data=gnss_data, gnss_label=gnss_label)
-
-    def fill_missing_data(self, gnss_data, gnss_label):
-        # Filling missing data. Creating missing gps weeks and filling with 0
-        gnss_data = gnss_data.set_index("gps_week")
-        gnss_data = gnss_data.reindex(list(range(gnss_data.index.min(),gnss_data.index.max()+1)),fill_value=0)
-        gnss_data = gnss_data.reset_index()
-
-        # Step 1: copy the gps_week and set index
-        gnss_label = gnss_label.set_index("gps_week")
-
-        # Step 2 getting the edge weeks
-        gnss_label['edge_week1'] = (gnss_label.index.diff(periods = -1).fillna(-1)<-1) #first edge
-        gnss_label['edge_week2'] = (gnss_label.index.diff(periods = 1).fillna(1)>1) #second edge
-
-        # Filling missing data. Creating missing gps weeks and filling with 0
-        gnss_label = gnss_label.reindex(list(range(gnss_label.index.min(),gnss_label.index.max()+1)),fill_value=0)
-        gnss_label = gnss_label.reset_index()
-        
-        # Setting the edge weeks as  1
-        gnss_label['label'] = np.where(gnss_label.edge_week2.shift(-1)==True, 1, gnss_label['label'] ) #before the second edge
-        gnss_label['label'] = np.where(gnss_label.edge_week1.shift(1)==True, 1, gnss_label['label'] ) #before the second edge
-
-        #Drop the auxiliary columns
-        gnss_label = gnss_label.drop('edge_week1', axis=1)
-        gnss_label = gnss_label.drop('edge_week2', axis=1)
-
         return gnss_data, gnss_label
 
     def plot_experiment(self, scores:np.array, pred:np.array) -> None:
@@ -286,10 +259,10 @@ if __name__ == '__main__':
     parser.add_argument(
         '-mi',
         '-model_index',
-        help='Use model_index = 0,1,2,3.',
+        help='Use model_index = 0,1,2,3,4.',
         choices=[0,1,2,3,4],
         type=int,
-        default=4 # positional argument
+        default=1 # positional argument
     )
     parser.add_argument(
         '-si',
@@ -297,7 +270,7 @@ if __name__ == '__main__':
         help='Scorer index for the Darts filters = 0,1,2.',
         choices=[0,1,2],
         type=int,
-        default=2 # positional argument
+        default=0 # positional argument
     )
 
     parsed_args = parser.parse_args()

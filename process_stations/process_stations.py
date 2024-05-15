@@ -12,18 +12,6 @@ sys.path.append('.')
 from station_trainer.timesnet_station_trainer import StationTrainer
 from station_trainer.darts_station_trainer import DartsTrainer
 
-# darts imports
-from darts.models import (
-    GaussianProcessFilter,
-    KalmanFilter,
-    MovingAverageFilter,
-)
-from darts.ad.scorers import (
-    NormScorer, 
-    KMeansScorer,
-    DifferenceScorer,
-)
-
 def read_stations_file(stations_file:str) -> list:
     try:
         with open(stations_file) as file:
@@ -155,8 +143,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '-mi',
         '-model_index',
-        help='Use model_index = -1 for TimesNet/ Use model_index = 0,1,2,3 for Darts.',
-        choices=[-1,0,1,2,3],
+        help='Use model_index = -1 for TimesNet/ Use model_index = 0,1,2,3,4 for Darts.',
+        choices=[-1,0,1,2,3,4],
         type=int,
         default=-1 # positional argument
     )
