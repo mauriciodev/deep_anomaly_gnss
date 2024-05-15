@@ -269,7 +269,7 @@ if __name__ == '__main__':
         default='CHEC' # positional argument
     )
     parser.add_argument(
-        '-m',
+        '-mi',
         '-model_index',
         help='Use model_index = 0,1,2,3.',
         choices=[0,1,2,3],
@@ -290,7 +290,7 @@ if __name__ == '__main__':
     station = parsed_args.s
 
     trainer = DartsTrainer(
-        model_index=parsed_args.m,
+        model_index=parsed_args.mi,
         scorer_index=parsed_args.si,
         station=station,
         use_du=False,
