@@ -57,7 +57,14 @@ class DartsTrainer():
         elif model_name == 'MovingAverageFilter':
             model = MovingAverageFilter(window=10)
         elif model_name == 'TSMixerModel':
-            model = TSMixerModel(input_chunk_length=10, output_chunk_length=1, n_epochs=10)
+            self.seq_len = 10
+            params = {
+                'input_chunk_length':self.seq_len,
+                'output_chunk_length':1,
+                'n_epochs':10,
+                'random_state':42,
+            }
+            model = TSMixerModel(**params)
 
         # Scorer index (0:Norm, 1:KMeans, 2:Difference)
         self.scorer_index = scorer_index
@@ -102,7 +109,7 @@ class DartsTrainer():
         # Decision score
         start = time.time()
         if self.forecast:
-            scores = self.model.score(self.train, start=0.0)
+            scores = self.model.score(self.train, start=self.train.time_index[self.seq_len])
         else:
             scores = self.model.score(self.train)
         end = time.time()
@@ -274,7 +281,7 @@ if __name__ == '__main__':
         help='Use model_index = 0,1,2,3.',
         choices=[0,1,2,3],
         type=int,
-        default=0 # positional argument
+        default=3 # positional argument
     )
     parser.add_argument(
         '-si',
