@@ -101,9 +101,9 @@ def process_stations(stations:list, output_file:str, model_index:int=-1, scorer_
     stacked_pred = np.hstack([*total_pred])
 
     # Calculation global metrics
-    precision, recall, f1_score, support = sklearn.metrics.precision_recall_fscore_support(stacked_pred, stacked_truth)
-    accuracy = sklearn.metrics.accuracy_score(stacked_pred, stacked_truth)
-    f1 = sklearn.metrics.f1_score(stacked_pred, stacked_truth)
+    precision, recall, f1_score, support = sklearn.metrics.precision_recall_fscore_support(stacked_truth, stacked_pred)
+    accuracy = sklearn.metrics.accuracy_score(stacked_truth, stacked_pred)
+    f1 = sklearn.metrics.f1_score(stacked_truth, stacked_pred)
 
     # Calculating global MSE
     mse = np.mean((stacked_scores - stacked_truth) ** 2)

@@ -105,7 +105,7 @@ class DartsTrainer():
         start = time.time()
         # Checking if the model is trainable
         allow_model_training = True if hasattr(self.model.model, 'fit') else False
-        self.model.fit(self.train, allow_model_training=allow_model_training)
+        self.model.fit(self.train_df, allow_model_training=allow_model_training)
         end = time.time()
 
         # Elapsed fit time
@@ -114,9 +114,9 @@ class DartsTrainer():
         # Decision score
         start = time.time()
         if self.forecast:
-            scores = self.model.score(self.train, start=self.train.time_index[self.seq_len])
+            scores = self.model.score(self.train_df, start=self.train_df.time_index[self.seq_len])
         else:
-            scores = self.model.score(self.train)
+            scores = self.model.score(self.train_df)
         end = time.time()
 
         # Elapsed score time
@@ -143,9 +143,12 @@ class DartsTrainer():
         # Adjusting the begining of the truth to be paired with scores
         begining = len(truth) - len(scores)
         truth = truth[begining:]
-        precision, recall, f1_score, support = sklearn.metrics.precision_recall_fscore_support(pred, truth)
-        accuracy = sklearn.metrics.accuracy_score(pred, truth)
-        f1 = sklearn.metrics.f1_score(pred, truth)
+        precision, recall, f1_score, support = sklearn.metrics.precision_recall_fscore_support(truth, pred)
+        accuracy = sklearn.metrics.accuracy_score(truth, pred)
+        f1 = sklearn.metrics.f1_score(truth, pred)
+
+        print(sklearn.metrics.classification_report(truth, pred))
+        print(sklearn.metrics.confusion_matrix(truth, pred))
 
         # MSE
         mse = float(np.mean((scores - truth) ** 2))
@@ -176,7 +179,7 @@ class DartsTrainer():
         else:
             i = 3
         
-        self.train = TimeSeries.from_dataframe(
+        self.train_df = TimeSeries.from_dataframe(
             df=self.gnss_data, 
             time_col=self.gnss_data.columns[0], 
             value_cols=self.gnss_data.columns[1:i], 
@@ -230,8 +233,8 @@ class DartsTrainer():
         fig, ax1 = plt.subplots()
 
         # Plot GNSS data on the primary y-axis
-        ax1.plot(self.train.time_index, self.train.values()[:, 0], color = 'cornflowerblue', label = 'Series DN')
-        ax1.plot(self.train.time_index, self.train.values()[:, 1], color = 'gold', label = 'Series DE')
+        ax1.plot(self.train_df.time_index, self.train_df.values()[:, 0], color = 'cornflowerblue', label = 'Series DN')
+        ax1.plot(self.train_df.time_index, self.train_df.values()[:, 1], color = 'gold', label = 'Series DE')
 
         # Plotting anomalies
         label = self.label.pd_dataframe()
@@ -250,7 +253,7 @@ class DartsTrainer():
         ax2 = ax1.twinx()
 
         # Plot data3 on the secondary y-axis
-        ax2.plot(self.train.time_index[begining:], scores, color='black', linewidth=0.5, label='Scores')
+        ax2.plot(self.train_df.time_index[begining:], scores, color='black', linewidth=0.5, label='Scores')
 
         # Set labels for axes
         ax1.set_xlabel('GPS Week')
