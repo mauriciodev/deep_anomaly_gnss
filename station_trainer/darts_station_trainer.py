@@ -28,12 +28,9 @@ from darts.models.forecasting.forecasting_model import ForecastingModel
 from darts.models.filtering.filtering_model import FilteringModel
 
 class DartsTrainer():
-    def __init__(self, model:Union[FilteringAnomalyModel, ForecastingAnomalyModel], scorers:list, scorer_index:int, station:str, use_du:bool) -> None:
+    def __init__(self, model_index:int, scorer_index:int, station:str, use_du:bool) -> None:
         self.station = station
         self.use_du = use_du
-
-        # Scorer index (0:Norm, 1:KMeans, 2:Difference)
-        self.scorer_index = scorer_index
 
         # Defining station filepaths
         self.gnss_data_path = f'dataset/{station}/{station}_NEU_train.csv'
@@ -43,6 +40,34 @@ class DartsTrainer():
 
         # Getting the data
         self.gnss_data, self.gnss_label = self.get_data(self.gnss_data_path, self.gnss_label_path)
+
+        model_names = [
+            'GaussianProcessFilter',
+            'KalmanFilter',
+            'MovingAverageFilter',
+            'TSMixerModel',
+        ]
+        model_name = model_names[model_index]
+
+        # Instating a model
+        if model_name == 'GaussianProcessFilter':
+            model = GaussianProcessFilter()
+        elif model_name == 'KalmanFilter':
+            model = KalmanFilter()
+        elif model_name == 'MovingAverageFilter':
+            model = MovingAverageFilter(window=10)
+        elif model_name == 'TSMixerModel':
+            model = TSMixerModel(input_chunk_length=10, output_chunk_length=1, n_epochs=10)
+
+        # Scorer index (0:Norm, 1:KMeans, 2:Difference)
+        self.scorer_index = scorer_index
+
+        # Instantiating scores
+        scorers = [
+            NormScorer(ord=1),
+            KMeansScorer(k=50),
+            DifferenceScorer(),
+        ]
 
         if isinstance(model, ForecastingModel):
             self.model = ForecastingAnomalyModel(
@@ -262,30 +287,8 @@ if __name__ == '__main__':
     print(f"Running with {parsed_args} parameters.")
     station = parsed_args.s
 
-    model_names = ['GaussianProcessFilter', 'KalmanFilter','MovingAverageFilter', 'TSMixerModel']
-    model_name = model_names[parsed_args.m]
-
-    # Instance of a filtering model
-    if model_name == 'GaussianProcessFilter':
-        model = GaussianProcessFilter()
-    elif model_name == 'KalmanFilter':
-        model = KalmanFilter()
-    elif model_name == 'MovingAverageFilter':
-        model = MovingAverageFilter(window=10)
-    elif model_name == 'TSMixerModel':
-        model = TSMixerModel(input_chunk_length=10, output_chunk_length=1, n_epochs=10)
-
-    # Instance of a forecasting model
-
-    scorers = [
-        NormScorer(ord=1),
-        KMeansScorer(k=50),
-        DifferenceScorer(),
-    ]
-
     trainer = DartsTrainer(
-        model=model,
-        scorers=scorers,
+        model_index=parsed_args.m,
         scorer_index=parsed_args.si,
         station=station,
         use_du=False,
