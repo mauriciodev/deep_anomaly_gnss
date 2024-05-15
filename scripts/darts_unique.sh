@@ -8,6 +8,6 @@
     # 1 - KMeansScorer
     # 2 - DifferenceScorer
 python -u station_trainer/darts_station_trainer.py \
-  -s BRAZ \
-  -f 0 \
-  -si 2
+  -station BRAZ \
+  -filtering_model_index 0 \
+  -scorer_index 2
