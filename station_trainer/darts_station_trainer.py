@@ -136,7 +136,7 @@ class DartsTrainer():
         f1 = sklearn.metrics.f1_score(pred, truth)
 
         # MSE
-        mse = np.mean((scores - truth) ** 2)
+        mse = float(np.mean((scores - truth) ** 2))
 
         print(f"Accuracy {accuracy}")
         print(f"Precision {precision}")
@@ -227,6 +227,8 @@ class DartsTrainer():
         if not anomalies.empty:
             ax1.vlines(anomalies.index, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'black', linestyle='dashed', alpha=0.5, label='Descontinuity')
 
+        begining = len(label) - len(pred)
+        label = label[begining:]
         label['pred'] = pred
         predictions = label[label.pred == 1]
         if not predictions.empty:
@@ -236,7 +238,7 @@ class DartsTrainer():
         ax2 = ax1.twinx()
 
         # Plot data3 on the secondary y-axis
-        ax2.plot(self.train.time_index, scores, color='black', linewidth=0.5, label='Scores')
+        ax2.plot(self.train.time_index[begining:], scores, color='black', linewidth=0.5, label='Scores')
 
         # Set labels for axes
         ax1.set_xlabel('GPS Week')
@@ -272,7 +274,7 @@ if __name__ == '__main__':
         help='Use model_index = 0,1,2,3.',
         choices=[0,1,2,3],
         type=int,
-        default=3 # positional argument
+        default=0 # positional argument
     )
     parser.add_argument(
         '-si',
@@ -280,7 +282,7 @@ if __name__ == '__main__':
         help='Scorer index for the Darts filters = 0,1,2.',
         choices=[0,1,2],
         type=int,
-        default=0 # positional argument
+        default=2 # positional argument
     )
 
     parsed_args = parser.parse_args()
