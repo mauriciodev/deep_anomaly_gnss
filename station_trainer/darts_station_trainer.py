@@ -218,6 +218,7 @@ class DartsTrainer():
         # Save the plot
         plt.title(f'Station: {self.station}', loc='center')
         plt.savefig(self.png_path, format='png')
+        plt.close()
 
     def save_metrics(self, metrics):
         with open(self.metrics_path, 'w') as result:

@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import sklearn
 import time
 import json
@@ -129,25 +130,34 @@ def process_stations(stations:list, output_file:str, filtering_model_index:int=-
     mse = np.mean((stacked_scores - stacked_truth) ** 2)
     
     print(f"Global Accuracy: {accuracy}")
-    print(f"Global Precision: {precision}")
-    print(f"Global Recall: {recall}")
+    print(f"Global Precision: {precision[1]}")
+    print(f"Global Recall: {recall[1]}")
     print(f"Global F1 score: {f1}")
     print(f"Global MSE score: {mse}")
     print(f"Processing time: {elapsed_time:.2f} seconds")
 
+    experiment_name = f"{output_file} filter {filtering_model_index} scorer {scorer_index}"
     metrics = {
-        'Type': 'Global',
-        'Accuracy':accuracy,
-        'Precision':np.array2string(precision, precision=2, separator=','),
-        'Recall':np.array2string(recall, precision=2, separator=','),
-        'F1':f1,
-        'MSE':mse,
-        'Processing Time:':f'{elapsed_time:.2f} seconds'
+        'Experiment': [experiment_name],
+        'Scorer': [scorer_index],
+        'Filter model': [filtering_model_index],
+        'Type': ['Global'],
+        'Accuracy':[accuracy],
+        'Precision':[precision[1]],
+        'Recall': [recall[1]],
+        'F1':[f1],
+        'MSE':[mse],
+        'Processing Time:':[f'{elapsed_time:.2f} seconds']
     }
 
     # Saving the global metrics file
-    with open(output_file, 'w') as result:
-        json.dump(metrics, result)
+    new_df = pd.DataFrame.from_dict(metrics)
+    if Path(output_file).is_file():
+        df = pd.read_csv(output_file)
+        df = df._append(new_df)
+    else:
+        df = new_df
+    df.to_csv(output_file, index=False)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='Process Stations')
@@ -184,7 +194,7 @@ if __name__ == '__main__':
     stations = read_stations_file(stations_filepath)
     # Sample stations to check the code
     #stations = ['BRAZ', 'CHEC']
-    file_name = (Path(stations_filepath).stem)+'_global_metrics.json'
+    file_name = (Path(stations_filepath).stem)+'_global_metrics.csv'
 
     paramsFile = parsed_args.p
     if paramsFile == '':
