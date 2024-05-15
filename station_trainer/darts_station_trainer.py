@@ -136,7 +136,7 @@ class DartsTrainer():
         f1 = sklearn.metrics.f1_score(pred, truth)
 
         # MSE
-        mse = np.mean((scores - truth) ** 2)
+        mse = float(np.mean((scores - truth) ** 2))
 
         print(f"Accuracy {accuracy}")
         print(f"Precision {precision}")
