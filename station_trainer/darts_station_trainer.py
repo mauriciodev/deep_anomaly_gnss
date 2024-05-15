@@ -7,13 +7,15 @@ import sklearn
 import datetime
 import json
 import argparse
+from typing import Union
 
 # darts imports
 from darts import TimeSeries
 from darts.models import (
-    GaussianProcessFilter,
-    KalmanFilter,
-    MovingAverageFilter,
+    GaussianProcessFilter, # Filtering model
+    KalmanFilter, # Filtering model
+    MovingAverageFilter, # Filtering model
+    TSMixerModel, # Forecasting model
 )
 from darts.ad.scorers import (
     NormScorer, 
@@ -21,9 +23,12 @@ from darts.ad.scorers import (
     DifferenceScorer,
 )
 from darts.ad.anomaly_model.filtering_am import FilteringAnomalyModel
+from darts.ad.anomaly_model.forecasting_am import ForecastingAnomalyModel
+from darts.models.forecasting.forecasting_model import ForecastingModel
+from darts.models.filtering.filtering_model import FilteringModel
 
 class DartsTrainer():
-    def __init__(self, model:FilteringAnomalyModel, scorers:list, scorer_index:int, station:str, use_du:bool) -> None:
+    def __init__(self, model:Union[FilteringAnomalyModel, ForecastingAnomalyModel], scorers:list, scorer_index:int, station:str, use_du:bool) -> None:
         self.station = station
         self.use_du = use_du
 
@@ -39,11 +44,16 @@ class DartsTrainer():
         # Getting the data
         self.gnss_data, self.gnss_label = self.get_data(self.gnss_data_path, self.gnss_label_path)
 
-        # Instantiate the anomaly model with: one forecasting model, and one or more scorers (and corresponding parameters)
-        self.anomaly_model = FilteringAnomalyModel(
-            model=model,
-            scorer=scorers,
-        )
+        if isinstance(model, ForecastingModel):
+            self.model = ForecastingAnomalyModel(
+                model=model,
+                scorer=scorers
+            )
+        elif isinstance(model, FilteringModel):
+            self.model = FilteringAnomalyModel(
+                model=model,
+                scorer=scorers
+            )
 
     def train(self):
         # Return None in case we don't have data
@@ -54,8 +64,11 @@ class DartsTrainer():
 
         # Training
         start = time.time()
-        allow_model_training = True if isinstance(self.anomaly_model.model, KalmanFilter) else False
-        self.anomaly_model.fit(self.train, allow_model_training=allow_model_training)
+        allow_model_training = True if (
+            isinstance(self.model.model, KalmanFilter) or
+            isinstance(self.model.model, TSMixerModel)
+            ) else False
+        self.model.fit(self.train, allow_model_training=allow_model_training)
         end = time.time()
 
         # Elapsed fit time
@@ -63,7 +76,7 @@ class DartsTrainer():
 
         # Decision score
         start = time.time()
-        scores = self.anomaly_model.score(self.train)
+        scores = self.model.score(self.train)
         end = time.time()
 
         # Elapsed score time
@@ -124,18 +137,12 @@ class DartsTrainer():
             df=self.gnss_data, 
             time_col=self.gnss_data.columns[0], 
             value_cols=self.gnss_data.columns[1:i], 
-            #fill_missing_dates=True, 
-            #freq=1, 
-            #fillna_value=0.0,
-            )
+            ).astype(np.float32) # Using float32 because MPS doesn't accepts float62
         self.label = TimeSeries.from_dataframe(
             df=self.gnss_label, 
             time_col=self.gnss_label.columns[0], 
             value_cols=self.gnss_label.columns[1], 
-            #fill_missing_dates=True, 
-            #freq=1, 
-            #fillna_value=1.0,
-            )
+            ).astype(np.float32) # Using float32 because MPS doesn't accepts float62
     
     def get_data(self, gnss_data_path: str, gnss_label_path:str) -> tuple[pd.DataFrame, pd.DataFrame]:
         try:
@@ -231,10 +238,10 @@ if __name__ == '__main__':
     parser.add_argument(
         '-f',
         '-filtering_model_index',
-        help='Use filtering_model_index = 0,1,2.',
-        choices=[0,1,2],
+        help='Use filtering_model_index = 0,1,2,3.',
+        choices=[0,1,2,3],
         type=int,
-        default=0 # positional argument
+        default=2 # positional argument
     )
     parser.add_argument(
         '-si',
@@ -249,16 +256,20 @@ if __name__ == '__main__':
     print(f"Running with {parsed_args} parameters.")
     station = parsed_args.s
 
-    filtering_model_names = ['GaussianProcessFilter', 'KalmanFilter','MovingAverageFilter']
-    filtering_model_name = filtering_model_names[parsed_args.f]
+    model_names = ['GaussianProcessFilter', 'KalmanFilter','MovingAverageFilter', 'TSMixerModel']
+    model_name = model_names[parsed_args.f]
 
-    # Instatiate of a filtering model
-    if filtering_model_name == 'GaussianProcessFilter':
-        filtering_model = GaussianProcessFilter()
-    elif filtering_model_name == 'KalmanFilter':
-        filtering_model = KalmanFilter()
-    else:
-        filtering_model = MovingAverageFilter(window=10)
+    # Instance of a filtering model
+    if model_name == 'GaussianProcessFilter':
+        model = GaussianProcessFilter()
+    elif model_name == 'KalmanFilter':
+        model = KalmanFilter()
+    elif model_name == 'MovingAverageFilter':
+        model = MovingAverageFilter(window=10)
+    elif model_name == 'TSMixerModel':
+        model = TSMixerModel(input_chunk_length=10, output_chunk_length=1, n_epochs=10)
+
+    # Instance of a forecasting model
 
     scorers = [
         NormScorer(ord=1),
@@ -267,7 +278,7 @@ if __name__ == '__main__':
     ]
 
     trainer = DartsTrainer(
-        model=filtering_model,
+        model=model,
         scorers=scorers,
         scorer_index=parsed_args.si,
         station=station,
