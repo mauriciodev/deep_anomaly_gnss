@@ -206,26 +206,21 @@ class DartsTrainer():
         gnss_data = gnss_data.reset_index()
 
         # Step 1: copy the gps_week and set index
-        #gnss_label['week_copy'] = gnss_label.gps_week
         gnss_label = gnss_label.set_index("gps_week")
 
         # Step 2 getting the edge weeks
         gnss_label['edge_week1'] = (gnss_label.index.diff(periods = -1).fillna(-1)<-1) #first edge
         gnss_label['edge_week2'] = (gnss_label.index.diff(periods = 1).fillna(1)>1) #second edge
-        #edge_week1 = edge_week1[edge_week1.week_copy > 1]
-        
-        #edge_week2 = edge_week2[edge_week2.week_copy < -1]
-        #edge_weeks = list(edge_week1) + list(edge_week2)
 
         # Filling missing data. Creating missing gps weeks and filling with 0
         gnss_label = gnss_label.reindex(list(range(gnss_label.index.min(),gnss_label.index.max()+1)),fill_value=0)
         gnss_label = gnss_label.reset_index()
         
+        # Setting the edge weeks as  1
         gnss_label['label'] = np.where(gnss_label.edge_week2.shift(-1)==True, 1, gnss_label['label'] ) #before the second edge
         gnss_label['label'] = np.where(gnss_label.edge_week1.shift(1)==True, 1, gnss_label['label'] ) #before the second edge
 
-        # Setting the edge weeks as  1
-        #gnss_label.loc[gnss_label['gps_week'].isin(edge_weeks), 'label'] = 1
+        #Drop the auxiliary columns
         gnss_label = gnss_label.drop('edge_week1', axis=1)
         gnss_label = gnss_label.drop('edge_week2', axis=1)
 
