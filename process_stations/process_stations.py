@@ -153,10 +153,10 @@ if __name__ == '__main__':
         default='' # positional argument
     )
     parser.add_argument(
-        '-m',
+        '-mi',
         '-model_index',
         help='Use model_index = -1 for TimesNet/ Use model_index = 0,1,2,3 for Darts.',
-        choices=[-1,0,1,3],
+        choices=[-1,0,1,2,3],
         type=int,
         default=-1 # positional argument
     )
@@ -184,4 +184,4 @@ if __name__ == '__main__':
 
 
     # Use filtering_model_index = -1 for TimesNet/ Use filtering_model_index = 0,1,2 for Darts
-    process_stations(stations=stations, output_file=f'dataset/{file_name}', filtering_model_index=parsed_args.f, scorer_index=parsed_args.si, params=params)
+    process_stations(stations=stations, output_file=f'dataset/{file_name}', model_index=parsed_args.mi, scorer_index=parsed_args.si, params=params)

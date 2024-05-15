@@ -35,7 +35,7 @@ class DartsTrainer():
         # Defining station filepaths
         self.gnss_data_path = f'dataset/{station}/{station}_NEU_train.csv'
         self.gnss_label_path = f'dataset/{station}/{station}_NEU_test_label.csv'
-        self.png_path = f'dataset/{station}/{station}_trained_darts.png'
+        self.png_path = f'dataset/{station}/{station}_trained_darts.pdf'
         self.metrics_path = f'dataset/{station}/{station}_metrics_darts.json'
 
         # Getting the data
@@ -57,7 +57,14 @@ class DartsTrainer():
         elif model_name == 'MovingAverageFilter':
             model = MovingAverageFilter(window=10)
         elif model_name == 'TSMixerModel':
-            model = TSMixerModel(input_chunk_length=10, output_chunk_length=1, n_epochs=10)
+            self.seq_len = 10
+            params = {
+                'input_chunk_length':self.seq_len,
+                'output_chunk_length':1,
+                'n_epochs':10,
+                'random_state':42,
+            }
+            model = TSMixerModel(**params)
 
         # Scorer index (0:Norm, 1:KMeans, 2:Difference)
         self.scorer_index = scorer_index
@@ -102,7 +109,7 @@ class DartsTrainer():
         # Decision score
         start = time.time()
         if self.forecast:
-            scores = self.model.score(self.train, start=0.0)
+            scores = self.model.score(self.train, start=self.train.time_index[self.seq_len])
         else:
             scores = self.model.score(self.train)
         end = time.time()
@@ -253,7 +260,7 @@ class DartsTrainer():
 
         # Save the plot
         plt.title(f'Station: {self.station}', loc='center')
-        plt.savefig(self.png_path, format='png')
+        plt.savefig(self.png_path, format='pdf')
         plt.close()
 
     def save_metrics(self, metrics):
@@ -269,12 +276,12 @@ if __name__ == '__main__':
         default='CHEC' # positional argument
     )
     parser.add_argument(
-        '-m',
+        '-mi',
         '-model_index',
         help='Use model_index = 0,1,2,3.',
         choices=[0,1,2,3],
         type=int,
-        default=0 # positional argument
+        default=3 # positional argument
     )
     parser.add_argument(
         '-si',
@@ -290,7 +297,7 @@ if __name__ == '__main__':
     station = parsed_args.s
 
     trainer = DartsTrainer(
-        model_index=parsed_args.m,
+        model_index=parsed_args.mi,
         scorer_index=parsed_args.si,
         station=station,
         use_du=False,

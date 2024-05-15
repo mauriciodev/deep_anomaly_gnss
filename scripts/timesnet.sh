@@ -12,4 +12,4 @@
 python -u process_stations/process_stations.py \
   -stations dataset/ecuador_stations.txt \
   -params process_stations/params_chec.json \
-  -filtering_model_index -1 \
+  -model_index -1 \
