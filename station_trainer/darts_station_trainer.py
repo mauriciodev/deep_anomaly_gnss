@@ -112,10 +112,6 @@ class DartsTrainer():
             'Processing Time:':f'{fit_time+score_time:.2f} seconds'
         }
 
-        print(f"Elapsed time to fit: {fit_time:.2f} seconds")
-        print(f"Elapsed time to score: {score_time:.2f} seconds")
-        print(f'MSE: {mse}')
-
         return scores, truth, pred, metrics
     
     def define_train_label(self):
