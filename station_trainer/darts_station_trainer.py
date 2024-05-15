@@ -56,7 +56,7 @@ class DartsTrainer():
         params = {
             'input_chunk_length':self.seq_len,
             'output_chunk_length':1,
-            'n_epochs':20,
+            'n_epochs':10,
             'random_state':42,
         }
 
