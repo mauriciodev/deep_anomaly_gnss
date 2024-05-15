@@ -227,6 +227,8 @@ class DartsTrainer():
         if not anomalies.empty:
             ax1.vlines(anomalies.index, ymin=plt.ylim()[0], ymax=plt.ylim()[1], color = 'black', linestyle='dashed', alpha=0.5, label='Descontinuity')
 
+        begining = len(label) - len(pred)
+        label = label[begining:]
         label['pred'] = pred
         predictions = label[label.pred == 1]
         if not predictions.empty:
@@ -236,7 +238,7 @@ class DartsTrainer():
         ax2 = ax1.twinx()
 
         # Plot data3 on the secondary y-axis
-        ax2.plot(self.train.time_index, scores, color='black', linewidth=0.5, label='Scores')
+        ax2.plot(self.train.time_index[begining:], scores, color='black', linewidth=0.5, label='Scores')
 
         # Set labels for axes
         ax1.set_xlabel('GPS Week')
