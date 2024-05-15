@@ -16,6 +16,7 @@ from darts.models import (
     KalmanFilter, # Filtering model
     MovingAverageFilter, # Filtering model
     TSMixerModel, # Forecasting model
+    TransformerModel, # Forecasting model
 )
 from darts.ad.scorers import (
     NormScorer, 
@@ -46,10 +47,19 @@ class DartsTrainer():
             'KalmanFilter',
             'MovingAverageFilter',
             'TSMixerModel',
+            'TransformerModel',
         ]
         model_name = model_names[model_index]
 
         # Instating a model
+        self.seq_len = 10
+        params = {
+            'input_chunk_length':self.seq_len,
+            'output_chunk_length':1,
+            'n_epochs':10,
+            'random_state':42,
+        }
+
         if model_name == 'GaussianProcessFilter':
             model = GaussianProcessFilter()
         elif model_name == 'KalmanFilter':
@@ -57,14 +67,9 @@ class DartsTrainer():
         elif model_name == 'MovingAverageFilter':
             model = MovingAverageFilter(window=10)
         elif model_name == 'TSMixerModel':
-            self.seq_len = 10
-            params = {
-                'input_chunk_length':self.seq_len,
-                'output_chunk_length':1,
-                'n_epochs':10,
-                'random_state':42,
-            }
             model = TSMixerModel(**params)
+        elif model_name == 'TransformerModel':
+            model = TransformerModel(**params)
 
         # Scorer index (0:Norm, 1:KMeans, 2:Difference)
         self.scorer_index = scorer_index
@@ -279,9 +284,9 @@ if __name__ == '__main__':
         '-mi',
         '-model_index',
         help='Use model_index = 0,1,2,3.',
-        choices=[0,1,2,3],
+        choices=[0,1,2,3,4],
         type=int,
-        default=3 # positional argument
+        default=4 # positional argument
     )
     parser.add_argument(
         '-si',
