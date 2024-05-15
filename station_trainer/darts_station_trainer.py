@@ -49,11 +49,13 @@ class DartsTrainer():
                 model=model,
                 scorer=scorers
             )
+            self.forecast = True
         elif isinstance(model, FilteringModel):
             self.model = FilteringAnomalyModel(
                 model=model,
                 scorer=scorers
             )
+            self.forecast = False
 
     def train(self):
         # Return None in case we don't have data
@@ -64,10 +66,8 @@ class DartsTrainer():
 
         # Training
         start = time.time()
-        allow_model_training = True if (
-            isinstance(self.model.model, KalmanFilter) or
-            isinstance(self.model.model, TSMixerModel)
-            ) else False
+        # Checking if the model is trainable
+        allow_model_training = True if hasattr(self.model.model, 'fit') else False
         self.model.fit(self.train, allow_model_training=allow_model_training)
         end = time.time()
 
@@ -76,7 +76,10 @@ class DartsTrainer():
 
         # Decision score
         start = time.time()
-        scores = self.model.score(self.train)
+        if self.forecast:
+            scores = self.model.score(self.train, start=0.0)
+        else:
+            scores = self.model.score(self.train)
         end = time.time()
 
         # Elapsed score time
@@ -236,12 +239,12 @@ if __name__ == '__main__':
         default='CHEC' # positional argument
     )
     parser.add_argument(
-        '-f',
-        '-filtering_model_index',
-        help='Use filtering_model_index = 0,1,2,3.',
+        '-m',
+        '-model_index',
+        help='Use model_index = 0,1,2,3.',
         choices=[0,1,2,3],
         type=int,
-        default=2 # positional argument
+        default=3 # positional argument
     )
     parser.add_argument(
         '-si',
@@ -257,7 +260,7 @@ if __name__ == '__main__':
     station = parsed_args.s
 
     model_names = ['GaussianProcessFilter', 'KalmanFilter','MovingAverageFilter', 'TSMixerModel']
-    model_name = model_names[parsed_args.f]
+    model_name = model_names[parsed_args.m]
 
     # Instance of a filtering model
     if model_name == 'GaussianProcessFilter':
