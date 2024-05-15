@@ -71,7 +71,7 @@ class GNSSPreprocessor():
             self.save_dataframe(neu_df_test_label_filepath, neu_df_test_label)
             
             # Saving the plot
-            plot_filename = f'{station}.png'
+            plot_filename = f'{station}.pdf'
             plot_filepath = os.path.join(station_folder, plot_filename)
             self.save_plot(station, neu_df_train, neu_df_test_label, plot_filepath)
             
@@ -88,7 +88,7 @@ class GNSSPreprocessor():
 
         plt.legend()
         plt.title(f'Station: {station}', loc='center')
-        plt.savefig(plot_filepath, format='png')
+        plt.savefig(plot_filepath, format='pdf')
             
     def read_NEU(self, filepath:str) -> tuple[pd.DataFrame, pd.DataFrame]:
         with open(filepath,'r', encoding='ISO-8859-15') as a:
@@ -168,8 +168,38 @@ class GNSSPreprocessor():
         
         # Keeping just what is need for testing
         neu_df_test_label = neu_df.drop(column_names+data_columns, axis=1)
+
+        # Filling missing data
+        neu_df_train, neu_df_test_label = self.fill_missing_data(gnss_data=neu_df_train, gnss_label=neu_df_test_label)
         
         return neu_df_train, neu_df_test_label
+    
+    def fill_missing_data(self, gnss_data, gnss_label):
+        # Filling missing data. Creating missing gps weeks and filling with 0
+        gnss_data = gnss_data.set_index("gps_week")
+        gnss_data = gnss_data.reindex(list(range(gnss_data.index.min(),gnss_data.index.max()+1)),fill_value=0)
+        gnss_data = gnss_data.reset_index()
+
+        # Step 1: copy the gps_week and set index
+        gnss_label = gnss_label.set_index("gps_week")
+
+        # Step 2 getting the edge weeks
+        gnss_label['edge_week1'] = (gnss_label.index.diff(periods = -1).fillna(-1)<-1) #first edge
+        gnss_label['edge_week2'] = (gnss_label.index.diff(periods = 1).fillna(1)>1) #second edge
+
+        # Filling missing data. Creating missing gps weeks and filling with 0
+        gnss_label = gnss_label.reindex(list(range(gnss_label.index.min(),gnss_label.index.max()+1)),fill_value=0)
+        gnss_label = gnss_label.reset_index()
+
+        # Setting the edge weeks as  1
+        gnss_label['label'] = np.where(gnss_label.edge_week2.shift(-1)==True, 1, gnss_label['label'] ) #before the second edge
+        gnss_label['label'] = np.where(gnss_label.edge_week1.shift(1)==True, 1, gnss_label['label'] ) #before the second edge
+
+        #Drop the auxiliary columns
+        gnss_label = gnss_label.drop('edge_week1', axis=1)
+        gnss_label = gnss_label.drop('edge_week2', axis=1)
+
+        return gnss_data, gnss_label
 
 def read_stations_file(stations_file:str) -> list:
     try:
