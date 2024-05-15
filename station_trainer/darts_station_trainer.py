@@ -103,6 +103,9 @@ class DartsTrainer():
 
         # Calculationg metrics
         truth = self.label.data_array().to_numpy().squeeze()
+        # Adjusting the begining of the truth to be paired with scores
+        begining = len(truth) - len(scores)
+        truth = truth[begining:]
         precision, recall, f1_score, support = sklearn.metrics.precision_recall_fscore_support(pred, truth)
         accuracy = sklearn.metrics.accuracy_score(pred, truth)
         f1 = sklearn.metrics.f1_score(pred, truth)
