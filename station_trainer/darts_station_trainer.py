@@ -274,7 +274,7 @@ if __name__ == '__main__':
         help='Use model_index = 0,1,2,3.',
         choices=[0,1,2,3],
         type=int,
-        default=3 # positional argument
+        default=0 # positional argument
     )
     parser.add_argument(
         '-si',
@@ -282,7 +282,7 @@ if __name__ == '__main__':
         help='Scorer index for the Darts filters = 0,1,2.',
         choices=[0,1,2],
         type=int,
-        default=0 # positional argument
+        default=2 # positional argument
     )
 
     parsed_args = parser.parse_args()

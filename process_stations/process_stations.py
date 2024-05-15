@@ -37,26 +37,7 @@ def read_stations_file(stations_file:str) -> list:
         print(f"Error reading file '{stations_file}': {e}")
         return []
     
-def prepare_darts(filtering_model_index:int):
-    filtering_model_names = ['GaussianProcessFilter', 'KalmanFilter','MovingAverageFilter']
-    filtering_model_name = filtering_model_names[filtering_model_index]
-
-    # Instatiate of a filtering model
-    if filtering_model_name == 'GaussianProcessFilter':
-        filtering_model = GaussianProcessFilter()
-    elif filtering_model_name == 'KalmanFilter':
-        filtering_model = KalmanFilter()
-    else:
-        filtering_model = MovingAverageFilter(window=10)
-
-    scorers = [
-        NormScorer(ord=1),
-        KMeansScorer(k=50),
-        DifferenceScorer(),
-    ]
-    return filtering_model, scorers 
-        
-def process_stations(stations:list, output_file:str, filtering_model_index:int=-1, scorer_index:int=0, params={}):
+def process_stations(stations:list, output_file:str, model_index:int=-1, scorer_index:int=0, params={}):
     total_truth = []
     total_pred = []
     total_scores = []
@@ -67,17 +48,15 @@ def process_stations(stations:list, output_file:str, filtering_model_index:int=-
             pbar.set_postfix({'Processing Station': station})
 
             # Our station trainer
-            if filtering_model_index == -1:
+            if model_index == -1:
                 station_trainer = StationTrainer(
                     station=station, 
                     use_du=False,
                     arg_params=params
                 )
             else:
-                filtering_model, scorers = prepare_darts(filtering_model_index)
                 station_trainer = DartsTrainer(
-                    model=filtering_model, 
-                    scorers=scorers, 
+                    model_index=model_index, 
                     scorer_index=scorer_index, 
                     station=station, 
                     use_du=False,
@@ -136,11 +115,11 @@ def process_stations(stations:list, output_file:str, filtering_model_index:int=-
     print(f"Global MSE score: {mse}")
     print(f"Processing time: {elapsed_time:.2f} seconds")
 
-    experiment_name = f"{output_file} filter {filtering_model_index} scorer {scorer_index}"
+    experiment_name = f"{output_file} filter {model_index} scorer {scorer_index}"
     metrics = {
         'Experiment': [experiment_name],
         'Scorer': [scorer_index],
-        'Filter model': [filtering_model_index],
+        'Filter model': [model_index],
         'Type': ['Global'],
         'Accuracy':[accuracy],
         'Precision':[precision[1]],
@@ -174,10 +153,10 @@ if __name__ == '__main__':
         default='' # positional argument
     )
     parser.add_argument(
-        '-f',
-        '-filtering_model_index',
-        help='Use filtering_model_index = -1 for TimesNet/ Use filtering_model_index = 0,1,2 for Darts.',
-        choices=[-1,0,1,2],
+        '-m',
+        '-model_index',
+        help='Use model_index = -1 for TimesNet/ Use model_index = 0,1,2,3 for Darts.',
+        choices=[-1,0,1,3],
         type=int,
         default=-1 # positional argument
     )
@@ -187,7 +166,7 @@ if __name__ == '__main__':
         help='Scorer index for the Darts filters = 0,1,2 for Darts. Not used on TimesNet.',
         choices=[0,1,2],
         type=int,
-        default=0 # positional argument
+        default=2 # positional argument
     )
     parsed_args = parser.parse_args()
     stations_filepath = parsed_args.s
