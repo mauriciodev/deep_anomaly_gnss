@@ -22,7 +22,7 @@ class StationTrainer():
         # Defining station filepaths
         self.gnss_data_path = f'dataset/{station}/{station}_NEU_train.csv'
         self.gnss_label_path = f'dataset/{station}/{station}_NEU_test_label.csv'
-        self.png_path = f'dataset/{station}/{station}_trained.png'
+        self.png_path = f'dataset/{station}/{station}_trained.pdf'
         self.metrics_path = f'dataset/{station}/{station}_metrics.json'
 
         # GNSS data
@@ -211,7 +211,7 @@ class StationTrainer():
 
         # Save the plot
         plt.title(f'Station: {self.station}', loc='center')
-        plt.savefig(self.png_path, format='png')
+        plt.savefig(self.png_path, format='pdf')
 
     def save_metrics(self, metrics):
         with open(self.metrics_path, 'w') as result:

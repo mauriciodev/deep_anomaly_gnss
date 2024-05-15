@@ -35,7 +35,7 @@ class DartsTrainer():
         # Defining station filepaths
         self.gnss_data_path = f'dataset/{station}/{station}_NEU_train.csv'
         self.gnss_label_path = f'dataset/{station}/{station}_NEU_test_label.csv'
-        self.png_path = f'dataset/{station}/{station}_trained_darts.png'
+        self.png_path = f'dataset/{station}/{station}_trained_darts.pdf'
         self.metrics_path = f'dataset/{station}/{station}_metrics_darts.json'
 
         # Getting the data
@@ -260,7 +260,7 @@ class DartsTrainer():
 
         # Save the plot
         plt.title(f'Station: {self.station}', loc='center')
-        plt.savefig(self.png_path, format='png')
+        plt.savefig(self.png_path, format='pdf')
         plt.close()
 
     def save_metrics(self, metrics):
