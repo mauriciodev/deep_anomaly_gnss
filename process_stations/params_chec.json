@@ -3,6 +3,6 @@
     "e_layers": 3,
     "d_model": 128,
     "d_ff": 128,
-    "dropout": 0.35,
+    "dropout": 0.4,
     "top_k": 3
 }
