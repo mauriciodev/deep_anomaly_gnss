@@ -156,7 +156,10 @@ if __name__ == '__main__':
         type=int,
         default=2 # positional argument
     )
+
     parsed_args = parser.parse_args()
+    print(f"Running with {parsed_args} parameters.")
+    
     stations_filepath = parsed_args.s
     stations = read_stations_file(stations_filepath)
     # Sample stations to check the code
