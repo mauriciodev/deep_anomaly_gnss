@@ -131,7 +131,7 @@ class GNSSPreprocessor():
         return ((time_series-gps_t0).dt.days/7).astype(int)
     
     def get_next_gps_week(self, gps_week:pd.Series, neu_df:pd.DataFrame) -> list:
-        ''' 
+        '''  DEPRECATED
         This method searches the values of gps_week in neu_df. In case a particular gps_week
         value is not found, the anomaly sould be set to the next valid value in neu_df.gps_week
         '''
@@ -150,14 +150,6 @@ class GNSSPreprocessor():
         # Adding a label column
         neu_df['label'] = 0
         
-        if dsc_df is not None:
-            # Calculating the values for GPS Week for the civil dates of our discontinuities
-            gps_week = self.get_gps_week(dsc_df.civil_date)
-            gps_week = self.get_next_gps_week(gps_week, neu_df)
-        
-            # Setting the labels to 1 for those gps weeks
-            neu_df.loc[neu_df['gps_week'].isin(gps_week), 'label'] = 1
-        
         # Columns to be removed
         column_names = ['yyyy.yyyy', 'civil_date', 'geoframe', 'station_id', 'station_dome', 'sig_dn(m)', 'sig_de(m)', 'sig_du(m)']
         label_column = ['label']
@@ -171,6 +163,13 @@ class GNSSPreprocessor():
 
         # Filling missing data
         neu_df_train, neu_df_test_label = self.fill_missing_data(gnss_data=neu_df_train, gnss_label=neu_df_test_label)
+
+        if dsc_df is not None:
+            # Calculating the values for GPS Week for the civil dates of our discontinuities
+            gps_week = self.get_gps_week(dsc_df.civil_date)
+        
+            # Setting the labels to 1 for those gps weeks
+            neu_df_test_label.loc[neu_df_test_label['gps_week'].isin(gps_week), 'label'] = 1
         
         return neu_df_train, neu_df_test_label
     
