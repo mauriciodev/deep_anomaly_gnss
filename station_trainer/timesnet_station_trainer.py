@@ -204,8 +204,10 @@ if __name__ == '__main__':
         help='params.json file. To control the model\'s hyperparameters.',
         default='' # positional argument
     )
+
     parsed_args = parser.parse_args()
     print(f"Running with {parsed_args} parameters.")
+
     station = parsed_args.s
 
     paramsFile = parsed_args.p

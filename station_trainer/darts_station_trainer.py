@@ -275,6 +275,7 @@ if __name__ == '__main__':
 
     parsed_args = parser.parse_args()
     print(f"Running with {parsed_args} parameters.")
+    
     station = parsed_args.s
 
     trainer = DartsTrainer(
