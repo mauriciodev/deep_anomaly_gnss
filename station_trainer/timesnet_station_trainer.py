@@ -33,7 +33,7 @@ class StationTrainer():
             'seq_len': 10, 
             'stride': 1, 
             'lr': 0.0001, 
-            'epochs': 100 , 
+            'epochs': 10, 
             'batch_size': 128, 
             'epoch_steps': -1, 
             'prt_steps': 1, 
