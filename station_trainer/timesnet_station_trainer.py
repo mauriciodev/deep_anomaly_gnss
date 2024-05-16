@@ -114,6 +114,9 @@ class StationTrainer():
         accuracy = sklearn.metrics.accuracy_score(pred, truth)
         f1 = sklearn.metrics.f1_score(pred, truth)
 
+        print(sklearn.metrics.classification_report(truth, pred))
+        print(sklearn.metrics.confusion_matrix(truth, pred))
+
         # Calculating MSE
         mse = np.mean((scores - truth) ** 2)
         

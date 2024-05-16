@@ -15,20 +15,33 @@ class EarlyStop:
         self.counter = 0
         self.score = np.Inf
         self.delta = delta
+        self.best_model_state_dict = None
         self.early_stop = False
+        self.best_epoch = -1
+        self.current_epoch = 0
 
-    def __call__(self, train_loss):
-        if train_loss < self.score and abs(train_loss - self.score) <= self.delta:
-            if self.verbose:
-                print(f'Model is converging: ({self.score:.9f} --> {train_loss:.9f}).')
+    def __call__(self, train_loss, model):
+        if train_loss > self.score - self.delta:  #not improving. Let's count
             self.counter += 1
-            print(f'EarlyStopping counter: {self.counter} out of {self.patience}')
+            if self.verbose:
+                print(f'Model not improving enough. EarlyStopping counter: {self.counter} out of {self.patience}')
             if self.counter >= self.patience:
                 self.early_stop = True
-        else:
+        if train_loss < self.score:  #Any improvement should be saved.
+            #if self.verbose:
+            #    print(f'Model is improving: ({self.score:.9f} --> {train_loss:.9f}).')
+            self.best_model_state_dict = model.state_dict()
             self.counter = 0
+            self.score = train_loss
+            self.best_epoch = self.current_epoch
+        self.current_epoch += 1
+        if self.early_stop:
+            #load weights to self.model
+            model.load_state_dict(self.best_model_state_dict)
+            if self.verbose:
+                print(f"Best epoch: {self.best_epoch}")
 
-        self.score = train_loss
+
 
 class TimesNet(BaseDeepAD):
     """
@@ -177,7 +190,7 @@ class TimesNet(BaseDeepAD):
                       f'training loss: {loss:.9f}, '
                       f'time: {time.time() - t1:.1f}s')
                 
-            early_stop(loss)
+            early_stop(loss, model=self.net)
             if early_stop.early_stop:
                 print("Early stopping")
                 break
