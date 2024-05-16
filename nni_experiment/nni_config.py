@@ -39,7 +39,7 @@ params = {
     'e_layers':{"_type": "choice", "_value": [2, 3]},
     'd_model':{"_type": "choice", "_value": [32, 64, 128]},
     'd_ff':{"_type": "choice", "_value": [32, 64, 128]},
-    #'dropout':{"_type": "quniform", "_value": [0.1, 0.5, 0.05]},
+    'dropout':{"_type": "quniform", "_value": [0.1, 0.5, 0.05]},
     'top_k':{"_type": "choice", "_value": [3, 4, 5]},
 }
 
