@@ -8,6 +8,7 @@ import logging
 import os
 from sklearn.preprocessing import MinMaxScaler
 import argparse
+import torch
 
 # Importing our custom TimesNet with Convergence Early Stop
 import sys
@@ -87,7 +88,7 @@ def exec_process(station:str, use_du:bool = False):
         'e_layers': 3, 
         'd_model': 128, 
         'd_ff': 128, 
-        'dropout': 0.45, 
+        'dropout': 0.4, 
         'top_k': 5, 
         'num_kernels': 6, 
         'verbose': 2, 
@@ -96,6 +97,7 @@ def exec_process(station:str, use_du:bool = False):
         'patience': 3, 
         'delta': 1e-7
     }
+    if torch.backends.mps.is_available(): params['device']='mps'
     params.update(nni.get_next_parameter())
     
     # Logging
