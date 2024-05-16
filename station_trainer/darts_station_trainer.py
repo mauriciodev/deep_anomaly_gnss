@@ -27,6 +27,7 @@ from darts.ad.anomaly_model.filtering_am import FilteringAnomalyModel
 from darts.ad.anomaly_model.forecasting_am import ForecastingAnomalyModel
 from darts.models.forecasting.forecasting_model import ForecastingModel
 from darts.models.filtering.filtering_model import FilteringModel
+from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 
 class DartsTrainer():
     def __init__(self, model_index:int, scorer_index:int, station:str, use_du:bool) -> None:
@@ -56,8 +57,9 @@ class DartsTrainer():
         params = {
             'input_chunk_length':self.seq_len,
             'output_chunk_length':1,
-            'n_epochs':10,
+            'n_epochs':50,
             'random_state':42,
+            'pl_trainer_kwargs':{'callbacks': [self.get_early_stop()]}
         }
 
         if model_name == 'GaussianProcessFilter':
@@ -93,6 +95,14 @@ class DartsTrainer():
                 scorer=scorers
             )
             self.forecast = False
+
+    def get_early_stop(self):
+        return EarlyStopping(
+            monitor="train_loss",
+            patience=3,
+            min_delta=1e-4,
+            mode='min',
+        )
 
     def train(self):
         # Return None in case we don't have data
@@ -275,7 +285,7 @@ if __name__ == '__main__':
 
     parsed_args = parser.parse_args()
     print(f"Running with {parsed_args} parameters.")
-    
+
     station = parsed_args.s
 
     trainer = DartsTrainer(
