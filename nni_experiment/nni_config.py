@@ -8,6 +8,7 @@ https://nni.readthedocs.io/en/stable/tutorials/hpo_quickstart_pytorch/main.html
 import signal
 from nni.experiment import Experiment
 import argparse
+import json
 
 parser = argparse.ArgumentParser(prog='experiment')
 parser.add_argument(
@@ -49,7 +50,16 @@ experiment.config.tuner.class_args['optimize_mode'] = 'minimize'
 experiment.config.training_service.use_active_gpu = True
 
 # Run it!
-experiment.run(port=8080, wait_completion=True)
+experiment.run(port=8080)
+while not experiment.get_status()=='DONE':
+    pass
 
-print('Experiment is running. Press Ctrl-C to quit.')
-#signal.pause()
+trials = experiment.export_data()
+sorted_trials = sorted(trials, key = lambda x: x.value)
+experiment.stop()
+
+fname = f'process_stations/params_{station.lower()}.json'
+print(f"Saving parameters to {fname}, MSE: {sorted_trials[0].value}")
+with open(fname, 'w') as f:
+    f.write(json.dumps(sorted_trials[0].parameter))
+
