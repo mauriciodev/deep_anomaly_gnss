@@ -24,6 +24,13 @@ parser.add_argument(
     type=int,
     default=1 # positional argument
 )
+parser.add_argument(
+    '-m',
+    '-max_trials',
+    help='Number of total experiments',
+    type=int,
+    default=50 # positional argument
+)
 parsed_args =parser.parse_args()
 station = parsed_args.s
 
@@ -44,7 +51,7 @@ experiment.config.trial_command = f"python nni_experiment/nni_timesnet_experimen
 experiment.config.trial_code_directory = '.'
 #experiment.config.trial_gpu_number = 1
 experiment.config.trial_concurrency = parsed_args.c
-experiment.config.max_trial_number = 50
+experiment.config.max_trial_number = parsed_args.m
 experiment.config.tuner.name = 'TPE'
 experiment.config.tuner.class_args['optimize_mode'] = 'minimize'
 experiment.config.training_service.use_active_gpu = True
@@ -61,4 +68,4 @@ experiment.stop()
 fname = f'process_stations/params_{station.lower()}.json'
 print(f"Saving parameters to {fname}, MSE: {sorted_trials[0].value}")
 with open(fname, 'w') as f:
-    f.write(json.dumps(sorted_trials[0].parameter))
+    f.write(json.dumps(sorted_trials[0].parameter, indent=4))
