@@ -103,7 +103,10 @@ def process_stations(stations:list, output_file:str, model_index:int=-1, scorer_
     print(f"Global MSE score: {mse}")
     print(f"Processing time: {elapsed_time:.2f} seconds")
 
-    experiment_name = f"{output_file} filter {model_index} scorer {scorer_index}"
+    if model_index != -1:
+        experiment_name = f"{output_file} filter {model_index} scorer {scorer_index}"
+    else:
+        experiment_name = f"{output_file} {params}"
     metrics = {
         'Experiment': [experiment_name],
         'Scorer': [scorer_index],
