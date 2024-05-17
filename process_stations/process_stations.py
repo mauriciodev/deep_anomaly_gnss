@@ -102,17 +102,19 @@ def process_stations(stations:list, output_file:str, model_index:int=-1, scorer_
 
     # Calculating global MSE
     mse = np.mean((stacked_scores - stacked_truth) ** 2)
-    
+        
+    # Calculating top K metrics
+    topK_precision, topK_recall, topK_f1_score, topK_support = sklearn.metrics.precision_recall_fscore_support(stacked_truth, stacked_kpred)
+    print(sklearn.metrics.classification_report(stacked_truth, stacked_kpred))
+    print(sklearn.metrics.confusion_matrix(stacked_truth, stacked_kpred))
+
     print(f"Global Accuracy: {accuracy}")
     print(f"Global Precision: {precision[1]}")
     print(f"Global Recall: {recall[1]}")
     print(f"Global F1 score: {f1_score[1]}")
+    print(f"Global TopK_F1 score: {topK_f1_score[1]}")
     print(f"Global MSE score: {mse}")
     print(f"Processing time: {elapsed_time:.2f} seconds")
-    
-    topK_precision, topK_recall, topK_f1_score, topK_support = sklearn.metrics.precision_recall_fscore_support(stacked_truth, stacked_kpred)
-    print(sklearn.metrics.classification_report(stacked_truth, stacked_kpred))
-    print(sklearn.metrics.confusion_matrix(stacked_truth, stacked_kpred))
     
     if model_index != -1:
         experiment_name = f"{output_file} filter {model_index} scorer {scorer_index}"
@@ -127,11 +129,9 @@ def process_stations(stations:list, output_file:str, model_index:int=-1, scorer_
         'Precision':[precision[1]],
         'Recall': [recall[1]],
         'F1':[f1_score[1]],
+        'TopK_F1':[topK_f1_score[1]],
         'MSE':[mse],
         'Processing Time:':[f'{elapsed_time:.2f}'],
-        'TopK_Precision':[topK_precision[1]],
-        'TopK_Recall': [topK_recall[1]],
-        'TopK_F1':[topK_f1_score[1]]
     }
 
     # Saving the global metrics file
