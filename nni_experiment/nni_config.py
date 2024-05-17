@@ -39,7 +39,7 @@ params = {
     'e_layers':{"_type": "choice", "_value": [2, 3]},
     'd_model':{"_type": "choice", "_value": [32, 64, 128]},
     'd_ff':{"_type": "choice", "_value": [32, 64, 128]},
-    'dropout':{"_type": "quniform", "_value": [0.1, 0.5, 0.05]},
+    'dropout':{"_type": "quniform", "_value": [0.1, 0.3, 0.1]},
     'top_k':{"_type": "choice", "_value": [3, 4, 5]},
 }
 
@@ -49,7 +49,7 @@ experiment.config.experiment_name = f'TimesNet Hyper Tune {station}'
 experiment.config.search_space = params
 experiment.config.trial_command = f"python nni_experiment/nni_timesnet_experiment.py -s {station}"
 experiment.config.trial_code_directory = '.'
-#experiment.config.trial_gpu_number = 1
+experiment.config.trial_gpu_number = 1
 experiment.config.trial_concurrency = parsed_args.c
 experiment.config.max_trial_number = parsed_args.m
 experiment.config.tuner.name = 'TPE'

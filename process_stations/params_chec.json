@@ -1,8 +1,8 @@
 {
     "seq_len": 10,
-    "e_layers": 3,
-    "d_model": 64,
+    "e_layers": 2,
+    "d_model": 128,
     "d_ff": 128,
-    "dropout": 0.4,
-    "top_k": 5
+    "dropout": 0.2,
+    "top_k": 3
 }
