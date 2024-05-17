@@ -11,7 +11,8 @@
     # 0 - NormScorer
     # 1 - KMeansScorer
     # 2 - DifferenceScorer
-python -u process_stations/process_stations.py \
-  -stations dataset/ecuador_stations.txt \
-  -params process_stations/params_chec.json \
-  -model_index -1 \
+python -u process_stations/process_stations.py -stations dataset/ecuador_stations.txt -params process_stations/params_braz.json -model_index -1
+python -u process_stations/process_stations.py -stations dataset/ecuador_stations.txt -params process_stations/params_chec.json -model_index -1
+
+python -u process_stations/process_stations.py -stations dataset/brazil_stations.txt -params process_stations/params_braz.json -model_index -1
+python -u process_stations/process_stations.py -stations dataset/brazil_stations.txt -params process_stations/params_chec.json -model_index -1
