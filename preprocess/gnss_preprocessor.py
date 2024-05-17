@@ -191,8 +191,8 @@ class GNSSPreprocessor():
         gnss_label = gnss_label.reset_index()
 
         # Setting the edge weeks as  1
-        gnss_label['label'] = np.where(gnss_label.edge_week2.shift(-1)==True, 1, gnss_label['label'] ) #before the second edge
-        gnss_label['label'] = np.where(gnss_label.edge_week1.shift(1)==True, 1, gnss_label['label'] ) #before the second edge
+        gnss_label['label'] = np.where(gnss_label.edge_week2==True, 1, gnss_label['label'] ) #at the second edge. No .shift(-1) respect the time series.
+        gnss_label['label'] = np.where(gnss_label.edge_week1.shift(1)==True, 1, gnss_label['label'] ) #after the first edge 
 
         #Drop the auxiliary columns
         gnss_label = gnss_label.drop('edge_week1', axis=1)
