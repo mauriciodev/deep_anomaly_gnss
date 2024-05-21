@@ -79,7 +79,7 @@ class DartsTrainer():
         # Instantiating scores
         scorers = [
             NormScorer(ord=1),
-            KMeansScorer(k=50),
+            KMeansScorer(k=2),
             DifferenceScorer(),
         ]
 
