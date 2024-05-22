@@ -1,5 +1,5 @@
 ## deep_anomaly_gnss
-Is a Python code that allows:
+deep_anomaly_gnss provides a Python code that allows:
 1. Download and preprocess of SIRGAS weekly solutions for anomaly detection tasks
 2. Anomaly detection in SIRGAS preprocessed weekly solutions with [TimesNet](https://arxiv.org/abs/2210.02186) using early stop
 3. Anomaly detection in SIRGAS preprocessed weekly solutions with [Darts](https://unit8co.github.io/darts/index.html).
