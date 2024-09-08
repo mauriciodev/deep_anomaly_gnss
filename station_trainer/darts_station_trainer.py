@@ -17,6 +17,7 @@ from darts.models import (
     MovingAverageFilter, # Filtering model
     TSMixerModel, # Forecasting model
     TransformerModel, # Forecasting model
+    RNNModel, # Forecasting model
 )
 from darts.ad.scorers import (
     NormScorer, 
@@ -49,6 +50,7 @@ class DartsTrainer():
             'MovingAverageFilter',
             'TSMixerModel',
             'TransformerModel',
+            'RNNModel',
         ]
         model_name = model_names[model_index]
 
@@ -72,6 +74,11 @@ class DartsTrainer():
             model = TSMixerModel(**params)
         elif model_name == 'TransformerModel':
             model = TransformerModel(**params)
+        elif model_name == 'RNNModel':
+            params["n_rnn_layers"] = 1
+            params["model"] = 'LSTM'
+            params['hidden_dim'] = 10
+            model = RNNModel(**params)
 
         # Scorer index (0:Norm, 1:KMeans, 2:Difference)
         self.scorer_index = scorer_index

@@ -160,8 +160,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '-mi',
         '-model_index',
-        help='Use model_index = -1 for TimesNet/ Use model_index = 0,1,2,3,4 for Darts.',
-        choices=[-1,0,1,2,3,4],
+        help='Use model_index = -1 for TimesNet/ Use model_index = 0,1,2,3,4,5 for Darts.',
+        choices=[-1,0,1,2,3,4,5],
         type=int,
         default=-1 # positional argument
     )

@@ -25,6 +25,9 @@ python -u process_stations/process_stations.py -stations dataset/ecuador_station
 python -u process_stations/process_stations.py -stations dataset/ecuador_stations.txt -model_index 4 -scorer_index 0
 python -u process_stations/process_stations.py -stations dataset/ecuador_stations.txt -model_index 4 -scorer_index 1
 python -u process_stations/process_stations.py -stations dataset/ecuador_stations.txt -model_index 4 -scorer_index 2
+python -u process_stations/process_stations.py -stations dataset/ecuador_stations.txt -model_index 5 -scorer_index 0
+python -u process_stations/process_stations.py -stations dataset/ecuador_stations.txt -model_index 5 -scorer_index 1
+python -u process_stations/process_stations.py -stations dataset/ecuador_stations.txt -model_index 5 -scorer_index 2
 # For Brazil
 python -u process_stations/process_stations.py -stations dataset/brazil_stations.txt -model_index 0 -scorer_index 0
 python -u process_stations/process_stations.py -stations dataset/brazil_stations.txt -model_index 0 -scorer_index 1
@@ -41,3 +44,6 @@ python -u process_stations/process_stations.py -stations dataset/brazil_stations
 python -u process_stations/process_stations.py -stations dataset/brazil_stations.txt -model_index 4 -scorer_index 0
 python -u process_stations/process_stations.py -stations dataset/brazil_stations.txt -model_index 4 -scorer_index 1
 python -u process_stations/process_stations.py -stations dataset/brazil_stations.txt -model_index 4 -scorer_index 2
+python -u process_stations/process_stations.py -stations dataset/brazil_stations.txt -model_index 5 -scorer_index 0
+python -u process_stations/process_stations.py -stations dataset/brazil_stations.txt -model_index 5 -scorer_index 1
+python -u process_stations/process_stations.py -stations dataset/brazil_stations.txt -model_index 5 -scorer_index 2
