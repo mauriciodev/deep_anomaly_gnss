@@ -55,7 +55,7 @@ class StationTrainer():
 
     def get_quakes(self):
         return pd.read_csv('dataset/quakes.csv')
-        
+
     def get_data(self, gnss_data_path: str, gnss_label_path:str) -> tuple[pd.DataFrame, pd.DataFrame]:
         try:
             gnss_data = pd.read_csv(gnss_data_path)
@@ -68,18 +68,18 @@ class StationTrainer():
     def get_params(self):
         # Best Hyperparameters
         return self.params
-    
+
     def train(self) -> tuple[np.array, np.array, np.array]:
         # Return None in case we don't have data
         if self.gnss_data.empty or  self.gnss_label.empty:
             return None, None, None, None
-        
+
         # Getting Training parameters
         params = self.get_params()
 
         # Defining model parameters
         model_params = {key: value for key, value in params.items() if key != 'percentile'}
-        
+
         # Instantiationg and fitting model
         model = Model(**model_params)
 
@@ -96,7 +96,7 @@ class StationTrainer():
 
         # Elapsed time
         elapsed_time = end - start
-        
+
         # Getting scores
         scores = model.decision_function(training_data)
 
@@ -110,16 +110,18 @@ class StationTrainer():
 
         # Calculationg metrics
         truth = self.gnss_label.label.to_numpy()
-        precision, recall, f1_score, support = sklearn.metrics.precision_recall_fscore_support(pred, truth)
-        accuracy = sklearn.metrics.accuracy_score(pred, truth)
-        f1 = sklearn.metrics.f1_score(pred, truth)
+        precision, recall, f1_score, support = (
+            sklearn.metrics.precision_recall_fscore_support(truth, pred)
+        )
+        accuracy = sklearn.metrics.accuracy_score(truth, pred)
+        f1 = sklearn.metrics.f1_score(truth, pred)
 
         print(sklearn.metrics.classification_report(truth, pred))
         print(sklearn.metrics.confusion_matrix(truth, pred))
 
         # Calculating MSE
         mse = np.mean((scores - truth) ** 2)
-        
+
         print(f"Accuracy {accuracy}")
         print(f"Precision {precision}")
         print(f"Recall {recall}")
