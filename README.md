@@ -21,6 +21,9 @@ deep_anomaly_gnss provides a Python code that allows:
 4. [NNI](https://nni.readthedocs.io)
 5. Matplotlib, Scikit-learn, Numpy, Pandas
 
+pip install u8darts[torch] nni  
+pip install deepod --no-deps  
+
 ## Stations selection
 To download SIRGAS weekly solutions you need to insert the four digit code of the desired stations in a txt file (e.g. ALAR, AMCO, BABR).
 Save the file in the dataset folder.
