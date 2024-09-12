@@ -66,7 +66,7 @@ def check_station_data(filepath:str) -> bool:
         return True
     else:
         return False
-    
+
 def exec_process(station:str, use_du:bool = False):
     # Defining station data filepaths
     gnss_data_path = f'dataset/{station}/{station}_NEU_train.csv'
@@ -74,7 +74,7 @@ def exec_process(station:str, use_du:bool = False):
 
     if not check_station_data(gnss_data_path) or  not check_station_data(gnss_label_path):
         return
-    
+
     # Best Hyperparameters
     params = {
         'seq_len': 10, 
@@ -99,21 +99,21 @@ def exec_process(station:str, use_du:bool = False):
     }
     if torch.backends.mps.is_available(): params['device']='mps'
     params.update(nni.get_next_parameter())
-    
+
     # Logging
     logging.info(params)
 
     # Training
-    f1 = train(
+    metric = train(
         station=station,
-        params=params, 
-        gnss_data_path=gnss_data_path, 
+        params=params,
+        gnss_data_path=gnss_data_path,
         gnss_label_path=gnss_label_path,
         use_du=use_du,
     )
 
     # Reporting f1 to nni so it can be tracked
-    nni.report_final_result(f1)
+    nni.report_final_result(metric)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='experiment')
