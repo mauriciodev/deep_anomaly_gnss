@@ -17,7 +17,7 @@ searchSpace:
     _value: [3, 4, 5]
   dropout:
     _type: quniform
-    _value: [0.1, 0.5, 0.05]
+    _value: [0.1, 0.3, 0.1]
 trialCommand: python nni_experiment/nni_timesnet_experiment.py
 trialCodeDirectory: ../
 #trialGpuNumber: 0
